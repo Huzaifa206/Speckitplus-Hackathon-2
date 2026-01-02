@@ -1,55 +1,46 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version change: N/A (initial version) → 1.0.0
+Modified principles: N/A
+Added sections: Core Principles (new), Phase Constraints (new), Success Criteria (new), Governance (new)
+Removed sections: N/A
+Templates requiring updates: N/A
+Follow-up TODOs: None
+-->
+
+# In-Memory Console-Based Todo Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Simplicity First, Progressive Enhancement
+Simplicity first, scalability later (progressive enhancement); Clean architecture and separation of concerns; Deterministic behavior in early phases; Extensibility for AI and cloud-native integrations; Production-grade practices introduced phase-by-phase
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Clean Architecture and Separation of Concerns
+Clean architecture and separation of concerns; Code readability and maintainability prioritized; Each phase must build on the previous phase without breaking functionality
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Phase-Based Development
+Each phase must build on the previous phase without breaking functionality; Technology usage must strictly follow the phase definitions; Each phase must be independently runnable; No premature optimization for future phases
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Deterministic Behavior in Early Phases
+Phase I must be fully in-memory with no external persistence; Console-based interaction only in Phase I; Data stored only in runtime memory; Single-user execution; Focus on core Todo logic and command handling
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Extensibility for Future Phases
+Extensibility for AI and cloud-native integrations; Configuration via environment variables only; Documentation required for every phase; No hardcoded secrets or credentials
 
-### [PRINCIPLE_6_NAME]
+## Phase Constraints
+Phase I - In-Memory Python Console App: Language: Python; No database, no files, no external services; Data stored only in runtime memory; Single-user execution; Focus on core Todo logic and command handling
 
+Phase II - Full-Stack Web Application: Frontend: Next.js; Backend: FastAPI; ORM: SQLModel; Database: Neon (PostgreSQL); REST-based API communication; Authentication-ready architecture (even if auth not implemented)
 
-[PRINCIPLE__DESCRIPTION]
+Phase III - AI-Powered Todo Chatbot: AI Integration: OpenAI ChatKit; Agent Framework: Agents SDK; Tooling: Official MCP SDK; Natural language interaction with Todo system; AI must act as an assistant, not a data owner; All AI actions must map to deterministic backend operations
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Phase IV - Local Kubernetes Deployment: Containerization: Docker; Local Cluster: Minikube; Deployement: Helm charts; Operations: kubectl-ai, kagent; All services must be deployable locally; Environment parity with cloud setup
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Phase V - Advanced Cloud Deployment: Messaging: Kafka; Service orchestration: Dapr; Cloud Provider: DigitalOcean DOKS; Microservices-ready architecture; Observability and scalability considered; Fault tolerance and async communication enabled
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Success Criteria
+Phase I runs fully offline in console; Smooth transition between phases with minimal refactoring; Clean, testable, and modular codebase; AI interactions are safe, explainable, and traceable; Kubernetes and cloud deployments are reproducible; Project demonstrates end-to-end AI-native system evolution
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This constitution supersedes all other practices; Amendments require documentation, approval, and migration plan if applicable; All PRs/reviews must verify compliance with phase constraints; Complexity must be justified with clear value proposition; Each phase must be independently runnable before moving to the next phase; Code changes must follow the progressive enhancement approach from Phase I to Phase V
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-02 | **Last Amended**: 2026-01-02
