@@ -23,7 +23,12 @@
       "Bash(npm run dev)",
       "Bash(curl -s http://localhost:3001)",
       "Bash(curl -X POST http://localhost:8000/api/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\": \"\"testuser@example.com\"\", \"\"name\"\": \"\"Test User\"\", \"\"password\"\": \"\"password123\"\"}')",
-      "Bash(npm install @radix-ui/react-dialog @radix-ui/react-slot @radix-ui/react-label @radix-ui/react-checkbox @radix-ui/react-dropdown-menu @radix-ui/react-select @radix-ui/react-separator @radix-ui/react-toast @radix-ui/react-alert-dialog lucide-react class-variance-authority clsx tailwind-merge)"
+      "Bash(npm install @radix-ui/react-dialog @radix-ui/react-slot @radix-ui/react-label @radix-ui/react-checkbox @radix-ui/react-dropdown-menu @radix-ui/react-select @radix-ui/react-separator @radix-ui/react-toast @radix-ui/react-alert-dialog lucide-react class-variance-authority clsx tailwind-merge)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8000)",
+      "Bash(taskkill -f -pid 12700)",
+      "Bash(taskkill -f -pid 5920)",
+      "Bash(taskkill -f -pid 24648)"
     ]
   }
 }
