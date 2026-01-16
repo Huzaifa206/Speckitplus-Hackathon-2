@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '@/lib/types';
+import { apiClient } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -29,10 +30,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Check if user is already logged in by verifying token or session
         const token = localStorage.getItem('auth_token');
         if (token) {
-          // Verify token with backend
+          // Verify token with backend using a direct fetch since we don't have user ID yet
           const response = await fetch('http://localhost:8000/api/auth/me', {
             headers: {
               'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
             },
           });
 
@@ -57,23 +59,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // Use the API client for login
+      const data = await apiClient.login(email, password);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Sign in failed');
-      }
-
-      const data = await response.json();
+      // The API returns { access_token, token_type }
       const { access_token: token } = data;
 
-      // Get user data after login
+      // Fetch user data after successful login
       const userResponse = await fetch('http://localhost:8000/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,9 +75,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userResponse.ok) {
         const userData = await userResponse.json();
 
-        // Store token in localStorage
-        localStorage.setItem('auth_token', token);
+        // Store token in localStorage (this is already done in the API client)
         setUser(userData);
+      } else {
+        throw new Error('Failed to fetch user data after login');
       }
     } catch (error) {
       console.error('Sign in error:', error);
@@ -95,23 +88,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, name, password }),
-      });
+      // Use the API client for registration
+      const data = await apiClient.register(email, name, password);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Sign up failed');
-      }
-
-      const data = await response.json();
+      // The API returns { access_token, token_type }
       const { access_token: token } = data;
 
-      // Get user data after registration
+      // Fetch user data after successful registration
       const userResponse = await fetch('http://localhost:8000/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -121,9 +104,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userResponse.ok) {
         const userData = await userResponse.json();
 
-        // Store token in localStorage
-        localStorage.setItem('auth_token', token);
+        // Store token in localStorage (this is already done in the API client)
         setUser(userData);
+      } else {
+        throw new Error('Failed to fetch user data after registration');
       }
     } catch (error) {
       console.error('Sign up error:', error);
