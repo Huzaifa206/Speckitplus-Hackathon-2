@@ -1,6 +1,1 @@
-[00:00:01.182] Server  LOG     ✓ Ready in 775ms
-[00:00:16.920] Server  LOG     ○ Compiling / ...
-[00:00:18.482] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:09.002] Browser ERROR   Error updating task: {}
-[00:02:23.126] Browser ERROR   Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://react.dev/link/setstate-in-render Router HomePage HomePage
-[00:02:30.616] Browser ERROR   Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://react.dev/link/setstate-in-render Router ProtectedRoute ProtectedRoute
+[00:00:00.850] Server  LOG     ✓ Ready in 532ms

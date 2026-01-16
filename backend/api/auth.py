@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
-from backend.core.database import get_session
-from backend.schemas.auth import UserLogin, UserRegister, Token, UserResponse
-from backend.services.user_service import get_user_by_email, create_user, authenticate_user
-from backend.core.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_access_token
+from core.database import get_session
+from schemas.auth import UserLogin, UserRegister, Token, UserResponse
+from services.user_service import get_user_by_email, create_user, authenticate_user
+from core.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_access_token
 from datetime import timedelta
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 

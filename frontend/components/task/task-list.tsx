@@ -12,7 +12,7 @@ interface TaskListProps {
 
 export function TaskList({ tasks, onTaskUpdate, onTaskDelete }: TaskListProps) {
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-white/80 backdrop-blur-sm border border-gray-200/30 shadow-sm">
       <CardHeader>
         <CardTitle>Your Tasks</CardTitle>
       </CardHeader>

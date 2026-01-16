@@ -10,17 +10,19 @@ const LoginPage: React.FC = () => {
   const [showSignup, setShowSignup] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted p-4">
-      <div className="w-full max-w-md">
-        {!showSignup ? (
-          <LoginForm onSwitchToSignup={() => setShowSignup(true)} />
-        ) : (
-          <SignupForm onSwitchToLogin={() => setShowSignup(false)} />
-        )}
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          <Link href="/" className="underline underline-offset-4 hover:text-primary">
-            Back to Home
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-slate-50">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {!showSignup ? (
+            <LoginForm onSwitchToSignup={() => setShowSignup(true)} />
+          ) : (
+            <SignupForm onSwitchToLogin={() => setShowSignup(false)} />
+          )}
+          <div className="mt-4 text-center text-sm text-gray-600">
+            <Link href="/" className="text-blue-600 hover:text-blue-800 underline">
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </div>

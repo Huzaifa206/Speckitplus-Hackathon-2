@@ -28,8 +28,8 @@ def get_db_session():
 
 # Create tables
 def create_db_and_tables():
-    from backend.models.user import User
-    from backend.models.task import Task
+    from models.user import User
+    from models.task import Task
     from sqlmodel import SQLModel
 
     SQLModel.metadata.create_all(engine)

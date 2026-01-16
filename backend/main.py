@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from backend.api.auth import router as auth_router
-from backend.api.tasks import router as tasks_router
-from backend.core.database import create_db_and_tables
+from api.auth import router as auth_router
+from api.tasks import router as tasks_router
+from core.database import create_db_and_tables
 
 app = FastAPI(title="Todo App API", version="1.0.0")
 

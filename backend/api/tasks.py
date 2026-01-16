@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlmodel import Session
 from typing import List, Optional
-from backend.core.database import get_session
-from backend.core.security import get_current_user
-from backend.schemas.task import TaskCreate, TaskCreateRequest, TaskRead, TaskUpdate
-from backend.services.task_service import (
+from core.database import get_session
+from core.security import get_current_user
+from schemas.task import TaskCreate, TaskCreateRequest, TaskRead, TaskUpdate
+from services.task_service import (
     get_tasks_by_user,
     get_task_by_id,
     create_task,

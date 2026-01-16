@@ -17,9 +17,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground antialiased`}>
+      <body className={`${inter.className} bg-gradient-to-br from-indigo-50 via-purple-50 to-slate-50 antialiased`}>
         <AuthProvider>
-          {children}
+          <div className="max-w-5xl mx-auto">
+            {children}
+          </div>
         </AuthProvider>
       </body>
     </html>

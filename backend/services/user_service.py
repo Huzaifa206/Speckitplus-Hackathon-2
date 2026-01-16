@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlmodel import Session, select
-from backend.models.user import User, UserRead
-from backend.core.security import get_password_hash, verify_password
+from models.user import User, UserRead
+from core.security import get_password_hash, verify_password
 
 def get_user_by_email(session: Session, email: str) -> Optional[User]:
     """Get a user by email"""

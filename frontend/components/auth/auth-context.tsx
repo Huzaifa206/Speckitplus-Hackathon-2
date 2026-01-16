@@ -135,6 +135,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Clear token from localStorage
       localStorage.removeItem('auth_token');
+      // Clear any other stored user data
       setUser(null);
     } catch (error) {
       console.error('Sign out error:', error);

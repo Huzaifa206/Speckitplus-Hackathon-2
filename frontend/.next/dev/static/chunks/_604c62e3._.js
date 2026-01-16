@@ -128,6 +128,7 @@ const AuthProvider = ({ children })=>{
         try {
             // Clear token from localStorage
             localStorage.removeItem('auth_token');
+            // Clear any other stored user data
             setUser(null);
         } catch (error) {
             console.error('Sign out error:', error);
@@ -152,7 +153,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/frontend/components/auth/auth-context.tsx",
-        lineNumber: 157,
+        lineNumber: 158,
         columnNumber: 10
     }, ("TURBOPACK compile-time value", void 0));
 };

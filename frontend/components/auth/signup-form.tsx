@@ -46,17 +46,17 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Sign Up</CardTitle>
-        <CardDescription>
+    <Card className="w-full max-w-sm bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-2xl font-semibold text-gray-900">Sign Up</CardTitle>
+        <CardDescription className="text-sm text-gray-600">
           Create an account to get started
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name" className="text-sm font-medium text-gray-700">Name</Label>
             <Input
               id="name"
               type="text"
@@ -64,10 +64,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
             <Input
               id="email"
               type="email"
@@ -75,27 +76,29 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800" disabled={isLoading}>
             {isLoading ? 'Creating account...' : 'Sign Up'}
           </Button>
           {onSwitchToLogin && (
             <Button
               variant="link"
-              className="mt-2"
+              className="mt-2 text-blue-600 hover:text-blue-800"
               onClick={(e) => {
                 e.preventDefault();
                 onSwitchToLogin();

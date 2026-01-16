@@ -1,7 +1,7 @@
 from typing import List, Optional
 from sqlmodel import Session, select
-from backend.models.task import Task, TaskRead, TaskUpdate, TaskBase
-from backend.models.user import User
+from models.task import Task, TaskRead, TaskUpdate, TaskBase
+from models.user import User
 from datetime import datetime
 
 def get_tasks_by_user(

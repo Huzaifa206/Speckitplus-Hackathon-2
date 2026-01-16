@@ -155,17 +155,23 @@ export const TaskDashboard: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-1">
-        <TaskForm onSubmit={handleTaskSubmit} />
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/30 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Create New Task</h2>
+          <TaskForm onSubmit={handleTaskSubmit} />
+        </div>
       </div>
 
       <div className="lg:col-span-2">
-        <Filters
-          onSearchChange={handleSearchChange}
-          onPriorityChange={handlePriorityChange}
-          onSortChange={handleSortChange}
-        />
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/30 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter & Sort Tasks</h2>
+          <Filters
+            onSearchChange={handleSearchChange}
+            onPriorityChange={handlePriorityChange}
+            onSortChange={handleSortChange}
+          />
+        </div>
 
         <TaskList
           tasks={filteredTasks}
