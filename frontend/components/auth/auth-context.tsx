@@ -30,8 +30,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Check if user is already logged in by verifying token or session
         const token = localStorage.getItem('auth_token');
         if (token) {
+          // Get API base URL from environment or default
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:8000';
+
           // Verify token with backend using a direct fetch since we don't have user ID yet
-          const response = await fetch('http://localhost:8000/api/auth/me', {
+          const response = await fetch(`${apiUrl}/api/auth/me`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -65,8 +68,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // The API returns { access_token, token_type }
       const { access_token: token } = data;
 
+      // Get API base URL from environment or default
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:8000';
+
       // Fetch user data after successful login
-      const userResponse = await fetch('http://localhost:8000/api/auth/me', {
+      const userResponse = await fetch(`${apiUrl}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -94,8 +100,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // The API returns { access_token, token_type }
       const { access_token: token } = data;
 
+      // Get API base URL from environment or default
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:8000';
+
       // Fetch user data after successful registration
-      const userResponse = await fetch('http://localhost:8000/api/auth/me', {
+      const userResponse = await fetch(`${apiUrl}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
