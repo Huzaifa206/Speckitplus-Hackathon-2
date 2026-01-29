@@ -27,31 +27,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Check if user is already logged in by verifying token or session
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-          // Get API base URL from environment or default
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:8000';
+        // Only run on client side
+        if (typeof window !== 'undefined') {
+          // Check if user is already logged in by verifying token or session
+          const token = localStorage.getItem('auth_token');
+          if (token) {
+            // Get API base URL from environment or default
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'http://localhost:8000';
 
-          // Verify token with backend using a direct fetch since we don't have user ID yet
-          const response = await fetch(`${apiUrl}/api/auth/me`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
+            // Verify token with backend using a direct fetch since we don't have user ID yet
+            const response = await fetch(`${apiUrl}/api/auth/me`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            });
 
-          if (response.ok) {
-            const userData = await response.json();
-            setUser(userData);
-          } else {
-            // Token is invalid, remove it
-            localStorage.removeItem('auth_token');
+            if (response.ok) {
+              const userData = await response.json();
+              setUser(userData);
+            } else {
+              // Token is invalid, remove it
+              localStorage.removeItem('auth_token');
+            }
           }
         }
       } catch (error) {
         console.error('Error checking session:', error);
-        localStorage.removeItem('auth_token');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_token');
+        }
       } finally {
         setLoading(false);
       }

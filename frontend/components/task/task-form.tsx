@@ -8,10 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarIcon, Plus } from 'lucide-react';
-import { Task } from '@/lib/types';
+import { Task, TaskInput } from '@/lib/types';
 
 interface TaskFormProps {
-  onSubmit: (task: Omit<Task, 'id'>) => void;
+  onSubmit: (task: TaskInput) => void;
 }
 
 export function TaskForm({ onSubmit }: TaskFormProps) {
@@ -34,8 +34,6 @@ export function TaskForm({ onSubmit }: TaskFormProps) {
       due_date: dueDate || null,
       is_recurring: false,
       recurring_interval: null,
-      user_id: '', // Will be populated by the parent component with current user ID
-      created_at: new Date().toISOString(),
     });
 
     // Reset form

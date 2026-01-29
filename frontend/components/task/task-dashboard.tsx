@@ -9,6 +9,8 @@ import { useAuth } from '@/components/auth/auth-context';
 import { useToast } from '@/components/ui/use-toast';
 import { apiClient } from '@/lib/api';
 
+import { TaskInput } from '@/lib/types';
+
 export const TaskDashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
@@ -82,7 +84,7 @@ export const TaskDashboard: React.FC = () => {
     setFilteredTasks(result);
   }, [tasks, searchTerm, selectedPriority, sortBy]);
 
-  const handleTaskSubmit = async (newTask: Omit<Task, 'id'>) => {
+  const handleTaskSubmit = async (newTask: TaskInput) => {
     try {
       if (!user) return;
 
