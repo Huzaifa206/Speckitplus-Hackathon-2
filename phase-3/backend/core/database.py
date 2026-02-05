@@ -34,4 +34,23 @@ def create_db_and_tables():
     from models.message import Message
     from sqlmodel import SQLModel
 
+    # Create all tables
     SQLModel.metadata.create_all(engine)
+
+    # Run any necessary migrations
+    from sqlalchemy import text
+
+    with engine.connect() as conn:
+        # Check if tags column exists for tasks table
+        if 'sqlite' in DATABASE_URL:
+            # For SQLite
+            result = conn.execute(text("PRAGMA table_info(tasks)"))
+            columns = [row[1] for row in result.fetchall()]
+
+            if 'tags' not in columns:
+                print("Adding 'tags' column to tasks table...")
+                conn.execute(text("ALTER TABLE tasks ADD COLUMN tags TEXT DEFAULT NULL"))
+                conn.commit()
+                print("Tags column added successfully!")
+
+        conn.close()

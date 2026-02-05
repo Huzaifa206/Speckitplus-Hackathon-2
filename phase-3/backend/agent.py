@@ -18,6 +18,9 @@ from mcp_tools import add_task, list_tasks, complete_task, delete_task
 import asyncio
 from openai import RateLimitError
 
+# Import Pydantic models for structured output
+from structured_output_models import TaskCommand
+
 
 def sanitize_input(input_text: str) -> str:
     """
@@ -152,12 +155,12 @@ class TaskManagementAgent:
 
             # Prepare system instructions
             system_instructions = ("You are a task management assistant. Help users with their tasks.\n\n"
-                                  "Commands:\n"
-                                  "- Add task: TASK_ADD: title: [task title], priority: [high/medium/low]\n"
-                                  "- List tasks: TASK_LIST:\n"
-                                  "- Complete task: TASK_COMPLETE: task_id: [number]\n"
-                                  "- Delete task: TASK_DELETE: task_id: [number]\n\n"
-                                  "Tasks are numbered 1, 2, 3. If user wants to delete/complete without specifying number, ask them to list tasks first.\n\n")
+                                  "You are a task management assistant. When users want to manage tasks, use the available functions:\n"
+                                  "- To add a task: use the add_task function with title, description, priority, due_date, and tags\n"
+                                  "- To list tasks: use the list_tasks function with optional filters\n"
+                                  "- To complete a task: use the complete_task function with task_id\n"
+                                  "- To delete a task: use the delete_task function with task_id\n\n"
+                                  "Tasks are numbered 1, 2, 3... based on their position in the list. Always list tasks first if user doesn't specify which task number to operate on.\n\n")
 
             # Prepare messages - include system instructions with first message if no history
             formatted_messages = []
@@ -179,31 +182,129 @@ class TaskManagementAgent:
             if time_since_last_request < self.min_request_interval:
                 time.sleep(self.min_request_interval - time_since_last_request)
 
-            # Call the Gemini model without tools (structured prompting approach)
+            # Call the Gemini model with function calling capability
             try:
                 print(f"DEBUG: Calling Gemini API with {len(formatted_messages)} messages")
-                print(f"DEBUG: System message length: {len(formatted_messages[0]['content']) if formatted_messages else 0}")
 
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=formatted_messages
-                )
+                # Prepare tools for function calling
+                from structured_output_models import FUNCTION_DEFINITIONS
 
-                # Update last request time after successful call
-                self.last_request_time = time.time()
+                # Try calling with tools first (function calling)
+                try:
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=formatted_messages,
+                        tools=[{
+                            "type": "function",
+                            "function": tool_def
+                        } for tool_def in FUNCTION_DEFINITIONS],
+                        tool_choice="auto"  # Allow model to choose when to use functions
+                    )
 
-                # Process the response
-                ai_response = response.choices[0]
-                response_content = ai_response.message.content or ""
+                    # Update last request time after successful call
+                    self.last_request_time = time.time()
 
-                print(f"DEBUG: Gemini response: {response_content[:200]}...")
+                    # Check if the model chose to call a function
+                    if response.choices[0].message.tool_calls:
+                        # Process the tool calls
+                        tool_calls = []
+                        response_content = ""
 
-                # Check if the response contains structured commands
+                        for tool_call in response.choices[0].message.tool_calls:
+                            function_name = tool_call.function.name
+                            function_args = json.loads(tool_call.function.arguments)
+
+                            # Execute the tool
+                            result = self.execute_tool(function_name, function_args, user_id)
+
+                            # Add to tool calls list
+                            tool_calls.append({
+                                "tool_name": function_name,
+                                "parameters": function_args,
+                                "result": result
+                            })
+
+                            # Create a user-friendly response
+                            if result.get("success"):
+                                if function_name == "add_task":
+                                    response_content = result.get("message", f"Task '{function_args.get('title', 'Untitled')}' added successfully!")
+                                elif function_name == "list_tasks":
+                                    tasks = result.get("tasks", [])
+                                    if tasks:
+                                        # Store task ID mapping for this conversation (index -> database ID)
+                                        # This allows users to reference tasks by simple numbers like 1, 2, 3
+                                        if not hasattr(self, 'task_id_map'):
+                                            self.task_id_map = {}
+                                        if conversation_uuid not in self.task_id_map:
+                                            self.task_id_map[conversation_uuid] = {}
+
+                                        task_lines = []
+                                        for index, task in enumerate(tasks, start=1):
+                                            # Map simple index to actual database ID
+                                            self.task_id_map[conversation_uuid][index] = task['id']
+
+                                            status = "✓ Completed" if task.get('completed', False) else "○ Pending"
+                                            task_lines.append(f"{index}. {task['title']} (Priority: {task['priority']}, {status})")
+                                        response_content = "Here are your tasks:\n" + "\n".join(task_lines) + "\n\nYou can use the numbers (1, 2, 3...) to delete or complete tasks."
+                                    else:
+                                        response_content = "You don't have any tasks matching those criteria."
+                                elif function_name == "complete_task":
+                                    # If the function was called with a display index, map it to database ID
+                                    task_id_param = function_args.get('task_id', 'unknown')
+
+                                    # Check if this is a display index that needs mapping
+                                    actual_task_id = task_id_param
+                                    if isinstance(task_id_param, int) and hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                        actual_task_id = self.task_id_map[conversation_uuid].get(task_id_param, task_id_param)
+
+                                    # Execute with the actual database ID
+                                    result = self.execute_tool("complete_task", {"task_id": actual_task_id}, user_id)
+                                    response_content = result.get("message", f"Task {task_id_param} marked as complete!")
+                                elif function_name == "delete_task":
+                                    # If the function was called with a display index, map it to database ID
+                                    task_id_param = function_args.get('task_id', 'unknown')
+
+                                    # Check if this is a display index that needs mapping
+                                    actual_task_id = task_id_param
+                                    if isinstance(task_id_param, int) and hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                        actual_task_id = self.task_id_map[conversation_uuid].get(task_id_param, task_id_param)
+
+                                    # Execute with the actual database ID
+                                    result = self.execute_tool("delete_task", {"task_id": actual_task_id}, user_id)
+                                    response_content = result.get("message", f"Task {task_id_param} deleted successfully!")
+                                else:
+                                    response_content = result.get("message", f"Operation completed successfully.")
+                            else:
+                                response_content = result.get("message", f"Failed to execute {function_name}: {result.get('error', 'Unknown error')}")
+                    else:
+                        # No tool calls were made, use the regular content
+                        response_content = response.choices[0].message.content or ""
+                        tool_calls = []
+
+                except Exception as tool_error:
+                    print(f"DEBUG: Function calling failed, falling back to structured prompting: {str(tool_error)}")
+
+                    # Fallback to the original approach
+                    print(f"DEBUG: System message length: {len(formatted_messages[0]['content']) if formatted_messages else 0}")
+
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=formatted_messages
+                    )
+
+                    # Update last request time after successful call
+                    self.last_request_time = time.time()
+
+                    # Process the response
+                    ai_response = response.choices[0]
+                    response_content = ai_response.message.content or ""
+
+                    print(f"DEBUG: Gemini response: {response_content[:200]}...")
+
+                    tool_calls = []
+
+                # Check if the response contains structured commands (fallback parsing)
                 import re
-
-                tool_calls = []
-
-                # Look for task addition command
                 task_add_match = re.search(r'TASK_ADD:\s*(.+)', response_content, re.IGNORECASE)
                 if task_add_match:
                     # Parse task details
@@ -214,6 +315,7 @@ class TaskManagementAgent:
                     desc_match = re.search(r'description:\s*([^\n,\[]+)', task_details_str, re.IGNORECASE)
                     priority_match = re.search(r'priority:\s*(high|medium|low)', task_details_str, re.IGNORECASE)
                     due_date_match = re.search(r'due_date:\s*((\d{4}-\d{2}-\d{2})|(\d{2}-\d{2}-\d{4}))', task_details_str, re.IGNORECASE)
+                    tags_match = re.search(r'tags:\s*\[(.*?)\]', task_details_str, re.IGNORECASE)  # Look for tags in brackets
 
                     if title_match:
                         title = title_match.group(1).strip().strip('"\'')
@@ -230,6 +332,13 @@ class TaskManagementAgent:
                         if due_date_match:
                             task_args["due_date"] = due_date_match.group(1).strip()
 
+                        if tags_match:
+                            # Parse tags from bracket notation
+                            tags_str = tags_match.group(1)
+                            tags = [tag.strip().strip('"\'') for tag in tags_str.split(',') if tag.strip()]
+                            # Convert to JSON string for storage
+                            task_args["tags"] = json.dumps(tags) if tags else "[]"
+
                         # Execute the tool manually
                         result = self.execute_tool("add_task", task_args, user_id)
                         tool_calls.append({
@@ -240,6 +349,20 @@ class TaskManagementAgent:
 
                         # Update response to be more user-friendly
                         if result.get("success"):
+                            # If there's an active task mapping, add the new task to it
+                            if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                # Find the next available display index
+                                existing_indices = set(self.task_id_map[conversation_uuid].keys())
+                                next_index = 1
+                                while next_index in existing_indices:
+                                    next_index += 1
+
+                                # Add the new task to the mapping
+                                task_id = result.get("task", {}).get("id", result.get("task_id"))
+                                if task_id:
+                                    self.task_id_map[conversation_uuid][next_index] = task_id
+                                    print(f"DEBUG: Added new task to mapping: display {next_index} -> database {task_id}")
+
                             response_content = result.get("message", f"Task '{title}' added successfully!")
                         else:
                             response_content = result.get("message", f"Failed to add task: {result.get('error', 'Unknown error')}")
@@ -301,9 +424,18 @@ class TaskManagementAgent:
                     display_index = int(task_complete_match.group(1))
 
                     # Convert display index to actual database ID
+                    print(f"DEBUG: Looking for task_id_map, hasattr: {hasattr(self, 'task_id_map')}")
+                    if hasattr(self, 'task_id_map'):
+                        print(f"DEBUG: task_id_map keys: {list(self.task_id_map.keys()) if self.task_id_map else 'None'}")
+                        print(f"DEBUG: conversation_uuid: {conversation_uuid}")
+
                     actual_task_id = display_index
                     if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                        print(f"DEBUG: Found mapping for conversation {conversation_uuid}, available indices: {list(self.task_id_map[conversation_uuid].keys())}")
                         actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
+                        print(f"DEBUG: Converted {display_index} -> {actual_task_id}")
+                    else:
+                        print(f"DEBUG: No mapping found, using original ID {display_index}")
 
                     args = {"task_id": actual_task_id}
 
@@ -327,9 +459,18 @@ class TaskManagementAgent:
                     display_index = int(task_delete_match.group(1))
 
                     # Convert display index to actual database ID
+                    print(f"DEBUG: Looking for task_id_map, hasattr: {hasattr(self, 'task_id_map')}")
+                    if hasattr(self, 'task_id_map'):
+                        print(f"DEBUG: task_id_map keys: {list(self.task_id_map.keys()) if self.task_id_map else 'None'}")
+                        print(f"DEBUG: conversation_uuid: {conversation_uuid}")
+
                     actual_task_id = display_index
                     if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                        print(f"DEBUG: Found mapping for conversation {conversation_uuid}, available indices: {list(self.task_id_map[conversation_uuid].keys())}")
                         actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
+                        print(f"DEBUG: Converted {display_index} -> {actual_task_id}")
+                    else:
+                        print(f"DEBUG: No mapping found, using original ID {display_index}")
 
                     args = {"task_id": actual_task_id}
 
@@ -346,6 +487,136 @@ class TaskManagementAgent:
                         response_content = result.get("message", f"Task {display_index} deleted successfully!")
                     else:
                         response_content = result.get("message", f"Failed to delete task {display_index}. Please list tasks first to see the current task numbers.")
+
+                # If no structured commands were found, try to parse natural language commands from original user input
+                if not tool_calls and user_input:
+                    print(f"DEBUG: No structured commands found, checking natural language for: {user_input}")
+                    import re
+
+                    # Check for delete command in user input
+                    delete_patterns = [
+                        r'delete\s+(\d+)',
+                        r'delete.*?(\d+)',
+                        r'remove.*?(\d+)',
+                        r'task.*?(\d+).*?delete',
+                        r'delete.*?task.*?(\d+)',
+                        r'remove.*?task.*?(\d+)'
+                    ]
+
+                    for pattern in delete_patterns:
+                        delete_match = re.search(pattern, user_input, re.IGNORECASE)
+                        if delete_match:
+                            print(f"DEBUG: Found delete pattern match: {delete_match.group(0)}")
+                            display_index = int(delete_match.group(1))
+
+                            # If there's no mapping, get the current task list to determine the mapping
+                            actual_task_id = None
+
+                            if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                print(f"DEBUG: Found mapping for conversation {conversation_uuid}, available indices: {list(self.task_id_map[conversation_uuid].keys())}")
+                                actual_task_id = self.task_id_map[conversation_uuid].get(display_index)
+                                if actual_task_id:
+                                    print(f"DEBUG: Using mapping - Converted {display_index} -> {actual_task_id}")
+                                else:
+                                    print(f"DEBUG: No mapping found for index {display_index}, will fetch current task list")
+                            else:
+                                print(f"DEBUG: No mapping found, will fetch current task list")
+
+                            # If we don't have a mapping or the mapping doesn't have this index, get current task list
+                            if actual_task_id is None:
+                                print(f"DEBUG: Fetching current task list to determine task ID for position {display_index}")
+                                # Get the current list of tasks for this user (this will be in the same order as the UI)
+                                list_result = self.execute_tool("list_tasks", {}, user_id)
+                                if list_result.get("success"):
+                                    tasks = list_result.get("tasks", [])
+                                    if display_index <= len(tasks) and display_index > 0:
+                                        actual_task_id = tasks[display_index - 1]["id"]  # -1 for 0-based indexing
+                                        print(f"DEBUG: Retrieved task ID {actual_task_id} for display position {display_index}")
+                                    else:
+                                        response_content = f"Task #{display_index} doesn't exist. You only have {len(tasks)} task(s)."
+                                        tool_calls = []
+                                        break
+                                else:
+                                    response_content = "Could not retrieve task list to determine which task to delete."
+                                    tool_calls = []
+                                    break
+
+                            args = {"task_id": actual_task_id}
+                            result = self.execute_tool("delete_task", args, user_id)
+
+                            response_content = result.get("message", f"Task {display_index} {'deleted successfully!' if result.get('success') else 'could not be deleted.'}")
+
+                            tool_calls = [{
+                                "tool_name": "delete_task",
+                                "parameters": args,
+                                "result": result
+                            }]
+                            print(f"DEBUG: Delete operation executed, success: {result.get('success')}")
+                            break  # Process only the first match
+
+                    # Check for complete command in user input if no delete was processed
+                    if not tool_calls:  # Only process if no delete was processed
+                        print(f"DEBUG: Checking for complete commands in: {user_input}")
+                        complete_patterns = [
+                            r'complete\s+(\d+)',
+                            r'complete.*?(\d+)',
+                            r'finish.*?(\d+)',
+                            r'mark.*?(\d+).*?done',
+                            r'mark.*?(\d+).*?complete',
+                            r'complete.*?task.*?(\d+)',
+                            r'finish.*?task.*?(\d+)'
+                        ]
+
+                        for pattern in complete_patterns:
+                            complete_match = re.search(pattern, user_input, re.IGNORECASE)
+                            if complete_match:
+                                print(f"DEBUG: Found complete pattern match: {complete_match.group(0)}")
+                                display_index = int(complete_match.group(1))
+
+                                # If there's no mapping, get the current task list to determine the mapping
+                                actual_task_id = None
+
+                                if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                    print(f"DEBUG: Found mapping for conversation {conversation_uuid}, available indices: {list(self.task_id_map[conversation_uuid].keys())}")
+                                    actual_task_id = self.task_id_map[conversation_uuid].get(display_index)
+                                    if actual_task_id:
+                                        print(f"DEBUG: Using mapping - Converted {display_index} -> {actual_task_id}")
+                                    else:
+                                        print(f"DEBUG: No mapping found for index {display_index}, will fetch current task list")
+                                else:
+                                    print(f"DEBUG: No mapping found, will fetch current task list")
+
+                                # If we don't have a mapping or the mapping doesn't have this index, get current task list
+                                if actual_task_id is None:
+                                    print(f"DEBUG: Fetching current task list to determine task ID for position {display_index}")
+                                    # Get the current list of tasks for this user (this will be in the same order as the UI)
+                                    list_result = self.execute_tool("list_tasks", {}, user_id)
+                                    if list_result.get("success"):
+                                        tasks = list_result.get("tasks", [])
+                                        if display_index <= len(tasks) and display_index > 0:
+                                            actual_task_id = tasks[display_index - 1]["id"]  # -1 for 0-based indexing
+                                            print(f"DEBUG: Retrieved task ID {actual_task_id} for display position {display_index}")
+                                        else:
+                                            response_content = f"Task #{display_index} doesn't exist. You only have {len(tasks)} task(s)."
+                                            tool_calls = []
+                                            break
+                                    else:
+                                        response_content = "Could not retrieve task list to determine which task to complete."
+                                        tool_calls = []
+                                        break
+
+                                args = {"task_id": actual_task_id}
+                                result = self.execute_tool("complete_task", args, user_id)
+
+                                response_content = result.get("message", f"Task {display_index} {'marked as complete!' if result.get('success') else 'could not be completed.'}")
+
+                                tool_calls = [{
+                                    "tool_name": "complete_task",
+                                    "parameters": args,
+                                    "result": result
+                                }]
+                                print(f"DEBUG: Complete operation executed, success: {result.get('success')}")
+                                break  # Process only the first match
 
             except Exception as gemini_error:
                 error_str = str(gemini_error)
@@ -373,6 +644,110 @@ class TaskManagementAgent:
                         "error": "Invalid argument error"
                     }
                 else:
+                    # For other errors including rate limits, try to parse the user input directly
+                    print(f"DEBUG: Attempting to parse user input directly due to error: {error_str}")
+
+                    # Try to extract commands from the original user input
+                    import re
+
+                    # Check for delete command in user input
+                    delete_patterns = [
+                        r'delete\s+(\d+)',
+                        r'delete.*?(\d+)',
+                        r'remove.*?(\d+)',
+                        r'task.*?(\d+).*?delete'
+                    ]
+
+                    for pattern in delete_patterns:
+                        delete_match = re.search(pattern, user_input, re.IGNORECASE)
+                        if delete_match:
+                            display_index = int(delete_match.group(1))
+
+                            # Convert display index to actual database ID
+                            actual_task_id = display_index
+                            if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
+
+                            args = {"task_id": actual_task_id}
+                            result = self.execute_tool("delete_task", args, user_id)
+
+                            if result.get("success"):
+                                return {
+                                    "conversation_id": conversation_uuid,
+                                    "response": f"Task {display_index} deleted successfully!",
+                                    "tool_calls": [{"tool_name": "delete_task", "parameters": args, "result": result}],
+                                    "timestamp": self.get_current_timestamp()
+                                }
+                            else:
+                                return {
+                                    "conversation_id": conversation_uuid,
+                                    "response": f"Failed to delete task {display_index}. {result.get('message', '')}",
+                                    "tool_calls": [],
+                                    "timestamp": self.get_current_timestamp()
+                                }
+
+                    # Check for complete command in user input
+                    complete_patterns = [
+                        r'complete\s+(\d+)',
+                        r'complete.*?(\d+)',
+                        r'finish.*?(\d+)',
+                        r'mark.*?(\d+).*?done'
+                    ]
+
+                    for pattern in complete_patterns:
+                        complete_match = re.search(pattern, user_input, re.IGNORECASE)
+                        if complete_match:
+                            display_index = int(complete_match.group(1))
+
+                            # Convert display index to actual database ID
+                            actual_task_id = display_index
+                            if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                                actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
+
+                            args = {"task_id": actual_task_id}
+                            result = self.execute_tool("complete_task", args, user_id)
+
+                            if result.get("success"):
+                                return {
+                                    "conversation_id": conversation_uuid,
+                                    "response": f"Task {display_index} marked as complete!",
+                                    "tool_calls": [{"tool_name": "complete_task", "parameters": args, "result": result}],
+                                    "timestamp": self.get_current_timestamp()
+                                }
+                            else:
+                                return {
+                                    "conversation_id": conversation_uuid,
+                                    "response": f"Failed to complete task {display_index}. {result.get('message', '')}",
+                                    "tool_calls": [],
+                                    "timestamp": self.get_current_timestamp()
+                                }
+
+                    # Check for add task in user input
+                    if any(keyword in user_input.lower() for keyword in ['add task', 'create task', 'new task']):
+                        # Try to extract task details from natural language
+                        import re
+
+                        # Simple pattern to extract task info from natural language
+                        title_match = re.search(r'(?:add|create|new)\s+task\s+(.+?)(?:\s+with|\s+and|\s+priority|\s+due|\s+$)', user_input, re.IGNORECASE)
+                        priority_match = re.search(r'(high|medium|low)\s+priority', user_input, re.IGNORECASE)
+
+                        if title_match:
+                            task_title = title_match.group(1).strip()
+
+                            args = {"title": task_title}
+                            if priority_match:
+                                args["priority"] = priority_match.group(1)
+
+                            result = self.execute_tool("add_task", args, user_id)
+
+                            return {
+                                "conversation_id": conversation_uuid,
+                                "response": result.get("message", f"Task '{task_title}' created successfully!"),
+                                "tool_calls": [{"tool_name": "add_task", "parameters": args, "result": result}],
+                                "timestamp": self.get_current_timestamp()
+                            }
+
+                    # If we can't parse the command, return error
                     return {
                         "conversation_id": conversation_uuid,
                         "response": "I'm currently unable to process your request due to an API issue. Please try again later.",

@@ -17,6 +17,7 @@ class TaskBase(BaseModel):
     due_date: Optional[datetime] = None
     is_recurring: bool = False
     recurring_interval: Optional[str] = None  # daily, weekly, etc.
+    tags: Optional[List[str]] = []  # Add tags field
 
 class TaskCreateRequest(BaseModel):
     title: str
@@ -26,6 +27,7 @@ class TaskCreateRequest(BaseModel):
     due_date: Optional[datetime] = None
     is_recurring: bool = False
     recurring_interval: Optional[str] = None  # daily, weekly, etc.
+    tags: Optional[List[str]] = []  # Add tags field
 
 class TaskCreate(TaskBase):
     pass
@@ -45,6 +47,7 @@ class TaskUpdate(BaseModel):
     due_date: Optional[datetime] = None
     is_recurring: Optional[bool] = None
     recurring_interval: Optional[str] = None
+    tags: Optional[List[str]] = None
 
 class TaskFilterParams(BaseModel):
     search: Optional[str] = None

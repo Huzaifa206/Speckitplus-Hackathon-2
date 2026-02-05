@@ -14,7 +14,7 @@ from services.task_service import (
 
 router = APIRouter(prefix="/users/{user_id}/tasks", tags=["tasks"])
 
-@router.get("/", response_model=List[TaskRead])
+@router.get("/")
 async def read_tasks(
     user_id: str,
     session: Session = Depends(get_session),
@@ -40,10 +40,28 @@ async def read_tasks(
         sort=sort,
         order=order
     )
-    return tasks
+
+    # Convert tasks to proper format with parsed tags
+    import json
+    formatted_tasks = []
+    for task in tasks:
+        # Parse tags from JSON string if they exist
+        tags_list = []
+        if task.tags:
+            try:
+                tags_list = json.loads(task.tags)
+            except (json.JSONDecodeError, TypeError):
+                tags_list = []
+
+        # Create a dict with the proper format
+        task_dict = task.dict()
+        task_dict['tags'] = tags_list
+        formatted_tasks.append(task_dict)
+
+    return formatted_tasks
 
 
-@router.get("/{task_id}", response_model=TaskRead)
+@router.get("/{task_id}")
 async def read_task(
     user_id: str,
     task_id: int,
@@ -61,7 +79,21 @@ async def read_task(
     task = get_task_by_id(session=session, task_id=task_id, user_id=user_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return task
+
+    # Parse tags from JSON string if they exist
+    import json
+    tags_list = []
+    if task.tags:
+        try:
+            tags_list = json.loads(task.tags)
+        except (json.JSONDecodeError, TypeError):
+            tags_list = []
+
+    # Create a dict with the proper format
+    task_dict = task.dict()
+    task_dict['tags'] = tags_list
+
+    return task_dict
 
 
 @router.post("/", response_model=TaskRead)
@@ -81,7 +113,21 @@ async def create_new_task(
 
     # Create the task with the authenticated user's ID
     created_task = create_task(session=session, task_data=task, user_id=user_id)
-    return created_task
+
+    # Parse tags from JSON string if they exist
+    import json
+    tags_list = []
+    if created_task.tags:
+        try:
+            tags_list = json.loads(created_task.tags)
+        except (json.JSONDecodeError, TypeError):
+            tags_list = []
+
+    # Create a dict with the proper format
+    task_dict = created_task.dict()
+    task_dict['tags'] = tags_list
+
+    return task_dict
 
 
 @router.put("/{task_id}", response_model=TaskRead)
@@ -109,7 +155,21 @@ async def update_existing_task(
 
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return updated_task
+
+    # Parse tags from JSON string if they exist
+    import json
+    tags_list = []
+    if updated_task.tags:
+        try:
+            tags_list = json.loads(updated_task.tags)
+        except (json.JSONDecodeError, TypeError):
+            tags_list = []
+
+    # Create a dict with the proper format
+    task_dict = updated_task.dict()
+    task_dict['tags'] = tags_list
+
+    return task_dict
 
 
 @router.delete("/{task_id}")

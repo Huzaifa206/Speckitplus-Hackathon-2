@@ -17,6 +17,7 @@ class TaskBase(SQLModel):
     due_date: Optional[datetime] = None
     is_recurring: bool = False
     recurring_interval: Optional[str] = None  # daily, weekly, etc.
+    tags: Optional[str] = None  # Store tags as JSON string for now
 
 class Task(TaskBase, table=True):
     __tablename__ = "tasks"
@@ -36,4 +37,4 @@ class TaskUpdate(SQLModel):
     due_date: Optional[datetime] = None
     is_recurring: Optional[bool] = None
     recurring_interval: Optional[str] = None
-    tags: Optional[List[str]] = []
+    tags: Optional[str] = None  # Store as JSON string

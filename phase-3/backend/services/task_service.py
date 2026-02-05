@@ -63,6 +63,14 @@ def create_task(session: Session, task_data, user_id: str) -> Task:
     task_dict = task_data.model_dump()
     task_dict['user_id'] = user_id
 
+    # Handle tags conversion if they exist as a list
+    if 'tags' in task_dict and isinstance(task_dict['tags'], list):
+        import json
+        task_dict['tags'] = json.dumps(task_dict['tags'])
+    elif 'tags' in task_dict and task_dict['tags'] is None:
+        # If tags is None, set it to empty JSON array string
+        task_dict['tags'] = '[]'
+
     # Create the task with the user_id
     db_task = Task(**task_dict)
 
@@ -82,8 +90,21 @@ def update_task(session: Session, task_id: int, user_id: str, task_update: TaskU
 
     # Update task fields
     update_data = task_update.model_dump(exclude_unset=True)
+
     for field, value in update_data.items():
-        setattr(db_task, field, value)
+        if field == 'tags':
+            if isinstance(value, list):
+                # Convert tags list to JSON string for storage
+                import json
+                setattr(db_task, field, json.dumps(value))
+            elif value is None:
+                # Handle None value for tags
+                setattr(db_task, field, '[]')
+            else:
+                # Assume it's already a string
+                setattr(db_task, field, value)
+        else:
+            setattr(db_task, field, value)
 
     session.add(db_task)
     session.commit()

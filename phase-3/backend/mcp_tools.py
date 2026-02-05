@@ -9,6 +9,7 @@ from models.task import Task, TaskBase, TaskUpdate
 from models.user import User
 from core.database import get_db_session
 from datetime import datetime
+import json
 
 
 def add_task(title: str, description: Optional[str] = None, priority: str = "medium",
@@ -41,13 +42,19 @@ def add_task(title: str, description: Optional[str] = None, priority: str = "med
 
             print(f"DEBUG: parsed_due_date: {parsed_due_date}")
 
+            # Convert tags to JSON string if they exist
+            tags_json = None
+            if tags and isinstance(tags, list):
+                tags_json = json.dumps(tags)
+
             # Create task object
             task_data = TaskBase(
                 title=title,
                 description=description,
                 priority=priority.lower(),
                 user_id=user_id,
-                due_date=parsed_due_date
+                due_date=parsed_due_date,
+                tags=tags_json  # Store tags as JSON string
             )
 
             print(f"DEBUG: Creating task with data: {task_data}")
@@ -57,11 +64,29 @@ def add_task(title: str, description: Optional[str] = None, priority: str = "med
             session.commit()
             session.refresh(task)
 
+            # Parse tags from JSON string if they exist
+            tags_list = []
+            if task.tags:
+                try:
+                    tags_list = json.loads(task.tags)
+                except (json.JSONDecodeError, TypeError):
+                    tags_list = []
+
             print(f"DEBUG: Task created successfully with ID: {task.id}")
 
             return {
                 "success": True,
                 "task_id": task.id,
+                "task": {
+                    "id": task.id,
+                    "title": task.title,
+                    "description": task.description,
+                    "completed": task.completed,
+                    "priority": task.priority,
+                    "due_date": task.due_date.isoformat() if task.due_date else None,
+                    "created_at": task.created_at.isoformat() if task.created_at else None,
+                    "tags": tags_list
+                },
                 "message": f"Task '{task.title}' created successfully"
             }
     except Exception as e:
@@ -104,6 +129,14 @@ def list_tasks(status: str = "all", priority: str = "all", search: Optional[str]
             # Format the tasks
             formatted_tasks = []
             for task in tasks:
+                # Parse tags from JSON string if they exist
+                tags_list = []
+                if task.tags:
+                    try:
+                        tags_list = json.loads(task.tags)
+                    except (json.JSONDecodeError, TypeError):
+                        tags_list = []
+
                 formatted_tasks.append({
                     "id": task.id,
                     "title": task.title,
@@ -111,7 +144,8 @@ def list_tasks(status: str = "all", priority: str = "all", search: Optional[str]
                     "completed": task.completed,
                     "priority": task.priority,
                     "due_date": task.due_date.isoformat() if task.due_date else None,
-                    "created_at": task.created_at.isoformat() if task.created_at else None
+                    "created_at": task.created_at.isoformat() if task.created_at else None,
+                    "tags": tags_list
                 })
 
             return {
@@ -149,8 +183,26 @@ def complete_task(task_id: int, user_id: str = "default_user") -> Dict[str, Any]
             session.add(task)
             session.commit()
 
+            # Parse tags from JSON string if they exist
+            tags_list = []
+            if task.tags:
+                try:
+                    tags_list = json.loads(task.tags)
+                except (json.JSONDecodeError, TypeError):
+                    tags_list = []
+
             return {
                 "success": True,
+                "task": {
+                    "id": task.id,
+                    "title": task.title,
+                    "description": task.description,
+                    "completed": task.completed,
+                    "priority": task.priority,
+                    "due_date": task.due_date.isoformat() if task.due_date else None,
+                    "created_at": task.created_at.isoformat() if task.created_at else None,
+                    "tags": tags_list
+                },
                 "message": f"Task '{task.title}' marked as completed"
             }
     except Exception as e:
@@ -175,12 +227,30 @@ def delete_task(task_id: int, user_id: str = "default_user") -> Dict[str, Any]:
                     "message": f"Task with ID {task_id} not found or doesn't belong to user"
                 }
 
+            # Parse tags from JSON string if they exist before deletion
+            tags_list = []
+            if task.tags:
+                try:
+                    tags_list = json.loads(task.tags)
+                except (json.JSONDecodeError, TypeError):
+                    tags_list = []
+
             # Delete the task
             session.delete(task)
             session.commit()
 
             return {
                 "success": True,
+                "task": {
+                    "id": task.id,
+                    "title": task.title,
+                    "description": task.description,
+                    "completed": task.completed,
+                    "priority": task.priority,
+                    "due_date": task.due_date.isoformat() if task.due_date else None,
+                    "created_at": task.created_at.isoformat() if task.created_at else None,
+                    "tags": tags_list
+                },
                 "message": f"Task '{task.title}' deleted successfully"
             }
     except Exception as e:
