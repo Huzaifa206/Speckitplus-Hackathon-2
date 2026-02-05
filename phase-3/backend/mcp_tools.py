@@ -17,15 +17,29 @@ def add_task(title: str, description: Optional[str] = None, priority: str = "med
     Create a new task for the user
     """
     try:
+        print(f"DEBUG: add_task called with user_id: {user_id}, title: {title}, due_date: {due_date}")
+
         with get_db_session() as session:
             # Parse due_date if provided
             parsed_due_date = None
             if due_date:
                 try:
+                    # Try ISO format first (YYYY-MM-DD)
                     parsed_due_date = datetime.fromisoformat(due_date.replace('Z', '+00:00'))
                 except ValueError:
-                    # If ISO format fails, try other formats
-                    parsed_due_date = datetime.strptime(due_date.split('.')[0], '%Y-%m-%d %H:%M:%S')
+                    try:
+                        # Try YYYY-MM-DD format (without time)
+                        parsed_due_date = datetime.strptime(due_date, '%Y-%m-%d')
+                    except ValueError:
+                        try:
+                            # Try DD-MM-YYYY format (as mentioned in the example)
+                            parsed_due_date = datetime.strptime(due_date, '%d-%m-%Y')
+                        except ValueError:
+                            # If all formats fail, log and continue without date
+                            print(f"Warning: Could not parse date format: {due_date}")
+                            parsed_due_date = None
+
+            print(f"DEBUG: parsed_due_date: {parsed_due_date}")
 
             # Create task object
             task_data = TaskBase(
@@ -36,10 +50,14 @@ def add_task(title: str, description: Optional[str] = None, priority: str = "med
                 due_date=parsed_due_date
             )
 
+            print(f"DEBUG: Creating task with data: {task_data}")
+
             task = Task(**task_data.dict())
             session.add(task)
             session.commit()
             session.refresh(task)
+
+            print(f"DEBUG: Task created successfully with ID: {task.id}")
 
             return {
                 "success": True,
@@ -47,6 +65,9 @@ def add_task(title: str, description: Optional[str] = None, priority: str = "med
                 "message": f"Task '{task.title}' created successfully"
             }
     except Exception as e:
+        print(f"ERROR: Failed to create task: {str(e)}")
+        import traceback
+        print(f"TRACEBACK: {traceback.format_exc()}")
         return {
             "success": False,
             "message": f"Failed to create task: {str(e)}"

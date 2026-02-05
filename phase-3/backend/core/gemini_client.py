@@ -29,8 +29,8 @@ class GeminiConfig:
             base_url=self.base_url
         )
 
-        # Default model to use
-        self.default_model = "gemini-2.0-flash"  # Updated to a more recent model
+        # Default model to use - using gemini flash which is more suitable for free tier
+        self.default_model = "gemini-2.5-flash"  # Free tier friendly model that supports OpenAI API
 
     def get_client(self):
         """Return configured OpenAI client for Gemini"""

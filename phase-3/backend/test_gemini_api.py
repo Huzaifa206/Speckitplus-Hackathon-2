@@ -18,7 +18,7 @@ if not api_key:
 print("Testing Gemini API connection...")
 
 # Clean the API key of any surrounding quotes if present
-api_key = api_key.strip().strip("'\"")
+
 
 # Create the client
 client = OpenAI(

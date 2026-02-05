@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bot, User } from 'lucide-react';
 import { chatApi, Message as ApiMessage } from '@/lib/chat-api';
+import { useAuth } from '@/components/auth/auth-context';
 
 interface Message {
   id: string;
@@ -17,12 +18,16 @@ interface ChatWidgetProps {
   onClose?: () => void; // Add onClose prop
 }
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId = 'default_user', onClose }) => {
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, onClose }) => {
+  const { user } = useAuth(); // Get the current user from auth context
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Use the provided userId, or fall back to the authenticated user's ID, or default to 'default_user'
+  const effectiveUserId = userId || user?.id || 'default_user';
 
   // Load conversation history when component mounts
   useEffect(() => {
@@ -80,7 +85,7 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId = 'default_user',
       // Call the chat API using our chatApi client
       const response = await chatApi.sendMessage({
         user_input: inputValue,
-        user_id: userId,
+        user_id: effectiveUserId,
         conversation_id: conversationId
       });
 

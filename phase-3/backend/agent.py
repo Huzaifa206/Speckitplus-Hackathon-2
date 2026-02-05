@@ -6,6 +6,8 @@ import json
 import logging
 import html
 import re
+import time
+import random
 from typing import Dict, Any, List, Optional
 from sqlmodel import Session, select
 from core.gemini_client import get_gemini_client, get_gemini_model
@@ -14,6 +16,7 @@ from models.message import Message, MessageCreate, MessageRole
 from core.database import get_db_session
 from mcp_tools import add_task, list_tasks, complete_task, delete_task
 import asyncio
+from openai import RateLimitError
 
 
 def sanitize_input(input_text: str) -> str:
@@ -56,6 +59,8 @@ class TaskManagementAgent:
     def __init__(self):
         self.client = get_gemini_client()
         self.model = get_gemini_model()
+        self.last_request_time = 0
+        self.min_request_interval = 1.0  # Minimum time between requests in seconds
 
         # Define available tools for the agent
         self.tools = [
@@ -150,8 +155,13 @@ class TaskManagementAgent:
                 {
                     "role": "system",
                     "content": "You are a helpful task management assistant. Help users manage their tasks using natural language. "
-                              "You can add, list, complete, and delete tasks. Always use the appropriate tools when needed. "
-                              "Be concise and helpful in your responses."
+                              "You can add, list, complete, and delete tasks. "
+                              "Be concise and helpful in your responses. "
+                              "If the user wants to add a task, respond with the following format: TASK_ADD: title: [task title], description: [if provided], priority: [high|medium|low if mentioned], due_date: [YYYY-MM-DD or DD-MM-YYYY if mentioned] "
+                              "If the user wants to list tasks, respond with: TASK_LIST: [optional filters] "
+                              "If the user wants to complete a task, respond with: TASK_COMPLETE: task_id: [number if mentioned] "
+                              "If the user wants to delete a task, respond with: TASK_DELETE: task_id: [number if mentioned] "
+                              "If you can't determine a specific action, respond with plain text."
                 }
             ]
 
@@ -160,30 +170,169 @@ class TaskManagementAgent:
             # Add the current user message
             formatted_messages.append(user_message)
 
-            # Call the Gemini model with tools
+            # Implement minimal delay between requests to respect rate limits
+            current_time = time.time()
+            time_since_last_request = current_time - self.last_request_time
+            if time_since_last_request < self.min_request_interval:
+                time.sleep(self.min_request_interval - time_since_last_request)
+
+            # Call the Gemini model without tools (structured prompting approach)
             try:
                 response = self.client.chat.completions.create(
                     model=self.model,
-                    messages=formatted_messages,
-                    tools=self.tools,
-                    tool_choice="auto"
+                    messages=formatted_messages
                 )
+
+                # Update last request time after successful call
+                self.last_request_time = time.time()
+
+                # Process the response
+                ai_response = response.choices[0]
+                response_content = ai_response.message.content or ""
+
+                # Check if the response contains structured commands
+                import re
+
+                tool_calls = []
+
+                # Look for task addition command
+                task_add_match = re.search(r'TASK_ADD:\s*(.+)', response_content, re.IGNORECASE)
+                if task_add_match:
+                    # Parse task details
+                    task_details_str = task_add_match.group(1).strip()
+
+                    # Extract individual fields
+                    title_match = re.search(r'title:\s*([^\n,\[]+)', task_details_str, re.IGNORECASE)
+                    desc_match = re.search(r'description:\s*([^\n,\[]+)', task_details_str, re.IGNORECASE)
+                    priority_match = re.search(r'priority:\s*(high|medium|low)', task_details_str, re.IGNORECASE)
+                    due_date_match = re.search(r'due_date:\s*((\d{4}-\d{2}-\d{2})|(\d{2}-\d{2}-\d{4}))', task_details_str, re.IGNORECASE)
+
+                    if title_match:
+                        title = title_match.group(1).strip().strip('"\'')
+
+                        # Build arguments dictionary
+                        task_args = {"title": title}
+
+                        if desc_match:
+                            task_args["description"] = desc_match.group(1).strip().strip('"\'')
+
+                        if priority_match:
+                            task_args["priority"] = priority_match.group(1).strip()
+
+                        if due_date_match:
+                            task_args["due_date"] = due_date_match.group(1).strip()
+
+                        # Execute the tool manually
+                        result = self.execute_tool("add_task", task_args, user_id)
+                        tool_calls.append({
+                            "tool_name": "add_task",
+                            "parameters": task_args,
+                            "result": result
+                        })
+
+                        # Update response to be more user-friendly
+                        if result.get("success"):
+                            response_content = result.get("message", f"Task '{title}' added successfully!")
+                        else:
+                            response_content = result.get("message", f"Failed to add task: {result.get('error', 'Unknown error')}")
+
+                # Look for task list command
+                task_list_match = re.search(r'TASK_LIST:\s*(.+)', response_content, re.IGNORECASE)
+                if task_list_match:
+                    # Parse list parameters
+                    list_params_str = task_list_match.group(1).strip()
+
+                    # Extract individual fields
+                    status_match = re.search(r'status:\s*(all|completed|pending)', list_params_str, re.IGNORECASE)
+                    priority_match = re.search(r'priority:\s*(all|high|medium|low)', list_params_str, re.IGNORECASE)
+                    search_match = re.search(r'search:\s*([^\n\[]+)', list_params_str, re.IGNORECASE)
+
+                    list_args = {}
+                    if status_match:
+                        list_args["status"] = status_match.group(1).strip()
+                    if priority_match:
+                        list_args["priority"] = priority_match.group(1).strip()
+                    if search_match:
+                        list_args["search"] = search_match.group(1).strip().strip('"\'')
+
+                    # Execute the tool manually
+                    result = self.execute_tool("list_tasks", list_args, user_id)
+                    tool_calls.append({
+                        "tool_name": "list_tasks",
+                        "parameters": list_args,
+                        "result": result
+                    })
+
+                    # Format the response nicely
+                    if result.get("success"):
+                        tasks = result.get("tasks", [])
+                        if tasks:
+                            response_content = "Here are your tasks:\n" + "\n".join([
+                                f"- {task['id']}: {task['title']} (Priority: {task['priority']}, Status: {task['status']})"
+                                for task in tasks
+                            ])
+                        else:
+                            response_content = "You don't have any tasks matching those criteria."
+                    else:
+                        response_content = f"Failed to list tasks: {result.get('error', 'Unknown error')}"
+
+                # Look for task complete command
+                task_complete_match = re.search(r'TASK_COMPLETE:\s*task_id:\s*(\d+)', response_content, re.IGNORECASE)
+                if task_complete_match:
+                    task_id = int(task_complete_match.group(1))
+                    args = {"task_id": task_id}
+
+                    # Execute the tool manually
+                    result = self.execute_tool("complete_task", args, user_id)
+                    tool_calls.append({
+                        "tool_name": "complete_task",
+                        "parameters": args,
+                        "result": result
+                    })
+
+                    # Update response
+                    response_content = result.get("message", f"Task #{task_id} completion status: {result.get('success', 'unknown')}")
+
+                # Look for task delete command
+                task_delete_match = re.search(r'TASK_DELETE:\s*task_id:\s*(\d+)', response_content, re.IGNORECASE)
+                if task_delete_match:
+                    task_id = int(task_delete_match.group(1))
+                    args = {"task_id": task_id}
+
+                    # Execute the tool manually
+                    result = self.execute_tool("delete_task", args, user_id)
+                    tool_calls.append({
+                        "tool_name": "delete_task",
+                        "parameters": args,
+                        "result": result
+                    })
+
+                    # Update response
+                    response_content = result.get("message", f"Task #{task_id} deletion status: {result.get('success', 'unknown')}")
+
             except Exception as gemini_error:
                 error_str = str(gemini_error)
                 logger.error(f"Gemini API error: {error_str}")
 
                 # Check if it's a rate limit error
-                if "quota" in error_str.lower() or "rate" in error_str.lower() or "429" in error_str:
-                    # Return a specific response for rate limit issues
+                if "quota" in error_str.lower() or "rate" in error_str.lower() or "429" in error_str or "limit" in error_str.lower():
                     return {
                         "conversation_id": conversation_uuid,
-                        "response": "I've reached my API usage limit. Please wait before sending more requests, or check your Google Cloud quota settings.",
+                        "response": "I've reached my API usage limit. Please wait a moment before sending more requests.",
                         "tool_calls": [],
                         "timestamp": self.get_current_timestamp(),
                         "error": "Rate limit exceeded"
                     }
+                elif "invalid argument" in error_str.lower() or "400" in error_str:
+                    # Complete fallback response
+                    return {
+                        "conversation_id": conversation_uuid,
+                        "response": "I'm having trouble processing your request right now. Could you please try rephrasing?",
+                        "tool_calls": [],
+                        "timestamp": self.get_current_timestamp(),
+                        "error": "Invalid argument error"
+                    }
                 else:
-                    # Graceful degradation - return a helpful message to the user
                     return {
                         "conversation_id": conversation_uuid,
                         "response": "I'm currently unable to process your request due to an API issue. Please try again later.",
@@ -192,48 +341,8 @@ class TaskManagementAgent:
                         "error": error_str
                     }
 
-            # Process the response
-            ai_response = response.choices[0]
-            response_content = ""
-            tool_calls = []
-
-            if ai_response.finish_reason == "tool_calls":
-                # Process tool calls
-                for tool_call in ai_response.message.tool_calls:
-                    function_name = tool_call.function.name
-                    function_args = json.loads(tool_call.function.arguments)
-
-                    # Execute the tool
-                    result = self.execute_tool(function_name, function_args, user_id)
-
-                    # Store the tool call for the response
-                    tool_calls.append({
-                        "tool_name": function_name,
-                        "parameters": function_args,
-                        "result": result
-                    })
-
-                # Get the final response after tool execution
-                # For simplicity, we'll generate a follow-up message after tool execution
-                follow_up_messages = formatted_messages.copy()
-                # Add the tool call and result
-                follow_up_messages.append({
-                    "role": "assistant",
-                    "content": ai_response.message.content or "",
-                    "tool_calls": [tc for tc in tool_calls]
-                })
-
-                # Get final response from AI after tools were executed
-                final_response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=follow_up_messages
-                )
-
-                response_content = final_response.choices[0].message.content
-
-            else:
-                # No tool calls, just return the AI response
-                response_content = ai_response.message.content or ""
+            # At this point, response_content and tool_calls have been set by the structured prompting approach above
+            # No need to process tool_calls separately since they were already executed
 
             # Save the conversation
             self.save_message(conversation_uuid, user_input, "user", user_id)
