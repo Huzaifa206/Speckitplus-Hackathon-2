@@ -128,3 +128,159 @@ https://nextjs.org/docs/messages/module-not-found
 
 [00:05:41.500] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\pages\_app\build-manifest.json'
 [00:05:41.522] Server  LOG     ✓ Compiled in 26ms
+[00:06:14.858] Server  ERROR   ⨯ Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\app\page\build-manifest.json'
+[00:06:14.860] Server  ERROR   ⨯ ./phase-3/frontend/_
+Module not found: Can't resolve 'next/dist/client/next-dev-turbopack.js'
+Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+  
+  Caused by:
+      0: Looking up data for TaskId 116740 from database failed
+      1: Unable to open static sorted file referenced from 00000055.meta
+      2: Unable to open static sorted file 00000050.sst
+      3: The system cannot find the path specified. (os error 3)
+Import map: aliased to module 'next' with subpath '/dist/client/next-dev-turbopack.js' inside of [project]/phase-3/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:06:14.890] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\app\page\build-manifest.json'
+[00:06:14.893] Server  ERROR   ⨯ ./phase-3/frontend/_
+Module not found: Can't resolve 'next/dist/client/next-dev-turbopack.js'
+Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+  
+  Caused by:
+      0: Looking up data for TaskId 116740 from database failed
+      1: Unable to open static sorted file referenced from 00000055.meta
+      2: Unable to open static sorted file 00000050.sst
+      3: The system cannot find the path specified. (os error 3)
+Import map: aliased to module 'next' with subpath '/dist/client/next-dev-turbopack.js' inside of [project]/phase-3/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:06:14.912] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\pages\_app\build-manifest.json'
+[00:06:14.930] Server  LOG     ✓ Compiled in 32ms
+[00:06:17.728] Server  ERROR   ⨯ Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\app\page\build-manifest.json'
+[00:06:17.734] Server  ERROR   ⨯ ./phase-3/frontend/_
+Module not found: Can't resolve 'next/dist/client/next-dev-turbopack.js'
+Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+  
+  Caused by:
+      0: Looking up data for TaskId 116740 from database failed
+      1: Unable to open static sorted file referenced from 00000055.meta
+      2: Unable to open static sorted file 00000050.sst
+      3: The system cannot find the path specified. (os error 3)
+Import map: aliased to module 'next' with subpath '/dist/client/next-dev-turbopack.js' inside of [project]/phase-3/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:06:17.758] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\app\page\build-manifest.json'
+[00:06:17.763] Server  ERROR   ⨯ ./phase-3/frontend/_
+Module not found: Can't resolve 'next/dist/client/next-dev-turbopack.js'
+Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+  
+  Caused by:
+      0: Looking up data for TaskId 116740 from database failed
+      1: Unable to open static sorted file referenced from 00000055.meta
+      2: Unable to open static sorted file 00000050.sst
+      3: The system cannot find the path specified. (os error 3)
+Import map: aliased to module 'next' with subpath '/dist/client/next-dev-turbopack.js' inside of [project]/phase-3/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:06:17.791] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\pages\_app\build-manifest.json'
+[00:06:17.802] Server  LOG     ✓ Compiled in 28ms
+[00:06:31.323] Server  ERROR   ⨯ Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\app\page\build-manifest.json'
+[00:06:31.325] Server  ERROR   ⨯ ./phase-3/frontend/_
+Module not found: Can't resolve 'next/dist/client/next-dev-turbopack.js'
+Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+  
+  Caused by:
+      0: Looking up data for TaskId 116740 from database failed
+      1: Unable to open static sorted file referenced from 00000055.meta
+      2: Unable to open static sorted file 00000050.sst
+      3: The system cannot find the path specified. (os error 3)
+Import map: aliased to module 'next' with subpath '/dist/client/next-dev-turbopack.js' inside of [project]/phase-3/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:06:31.351] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\app\page\build-manifest.json'
+[00:06:31.354] Server  ERROR   ⨯ ./phase-3/frontend/_
+Module not found: Can't resolve 'next/dist/client/next-dev-turbopack.js'
+Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+
+Debug info:
+- Execution of <ModuleAssetContext as AssetContext>::resolve_asset failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of *ResolveResult::is_unresolvable failed
+- Execution of *ResolveResult::with_replaced_request_key failed
+- Execution of resolve_into_package failed
+- Failed to restore task data (corrupted database or bug): Meta for Pattern::new_internal (TaskId 116740))
+  
+  Caused by:
+      0: Looking up data for TaskId 116740 from database failed
+      1: Unable to open static sorted file referenced from 00000055.meta
+      2: Unable to open static sorted file 00000050.sst
+      3: The system cannot find the path specified. (os error 3)
+Import map: aliased to module 'next' with subpath '/dist/client/next-dev-turbopack.js' inside of [project]/phase-3/frontend
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:06:31.373] Server  ERROR   Error: ENOENT: no such file or directory, open 'E:\ai code\python\Speckitplus-Hackathon-II\phase-3\frontend\.next\dev\server\pages\_app\build-manifest.json'
+[00:06:31.397] Server  LOG     ✓ Compiled in 28ms
