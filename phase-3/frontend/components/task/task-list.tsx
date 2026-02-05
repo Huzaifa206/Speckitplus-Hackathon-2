@@ -21,10 +21,11 @@ export function TaskList({ tasks, onTaskUpdate, onTaskDelete }: TaskListProps) {
           {tasks.length === 0 ? (
             <p className="text-center text-muted-foreground">No tasks found. Add a new task to get started!</p>
           ) : (
-            tasks.map((task) => (
+            tasks.map((task, index) => (
               <TaskItem
                 key={task.id}
                 task={task}
+                displayIndex={index + 1}
                 onUpdate={onTaskUpdate}
                 onDelete={onTaskDelete}
               />

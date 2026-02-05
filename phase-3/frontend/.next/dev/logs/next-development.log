@@ -1,3 +1,49 @@
-[00:00:00.846] Server  LOG     ✓ Ready in 541ms
-[00:00:08.315] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:09.396] Browser ERROR   Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://react.dev/link/setstate-in-render Router HomePage HomePage
+[00:00:00.823] Server  LOG     ✓ Ready in 549ms
+[00:00:05.704] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:06.293] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:06.293] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:10.002] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:10.002] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:10.002] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:10.002] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:13.785] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:13.785] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:37.836] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:37.836] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:37.836] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:37.836] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:51.784] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:51.784] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:01:16.783] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:01:16.783] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:01:16.783] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:01:16.783] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:02:17.815] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:02:17.815] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:02:45.453] Browser ERROR   Error sending message: {}
+[00:02:45.453] Browser ERROR   Error sending message: {}
+[00:03:01.268] Browser ERROR   Error sending message: {}
+[00:03:01.268] Browser ERROR   Error sending message: {}
+[00:29:43.903] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/15","hasToken":true,"method":"DELETE","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:29:44.253] Browser ERROR   API Error: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/15","status":401,"statusText":"Unauthorized"}
+[00:29:44.253] Browser WARN    401 Unauthorized - clearing token and potentially redirecting
+[00:29:44.253] Browser ERROR   Error deleting task: {}
+[00:29:47.487] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/15","hasToken":false,"method":"DELETE","token":"none"}
+[00:29:47.487] Browser ERROR   API Error: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/15","status":401,"statusText":"Unauthorized"}
+[00:29:47.487] Browser WARN    401 Unauthorized - clearing token and potentially redirecting
+[00:29:47.487] Browser ERROR   Error deleting task: {}
+[00:30:05.894] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:30:06.078] Browser ERROR   Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://react.dev/link/setstate-in-render Router ProtectedRoute ProtectedRoute
+[00:30:07.814] Browser LOG     API Request: {"endpoint":"/api/auth/login","hasToken":false,"method":"POST","token":"none"}
+[00:30:07.814] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:07.814] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:12.633] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/15","hasToken":true,"method":"DELETE","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:14.335] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:30:14.335] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:30:14.335] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:30:14.335] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:30:25.004] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"POST","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:30.737] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/18","hasToken":true,"method":"PUT","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:31.987] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/17","hasToken":true,"method":"PUT","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:33.737] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/16","hasToken":true,"method":"PUT","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:30:34.685] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/14","hasToken":true,"method":"PUT","token":"eyJhbGciOiJIUzI1NiIs..."}

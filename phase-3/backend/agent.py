@@ -150,25 +150,28 @@ class TaskManagementAgent:
                 "content": sanitized_input
             }
 
-            # Prepare messages for the model
-            formatted_messages = [
-                {
-                    "role": "system",
-                    "content": "You are a helpful task management assistant. Help users manage their tasks using natural language. "
-                              "You can add, list, complete, and delete tasks. "
-                              "Be concise and helpful in your responses. "
-                              "If the user wants to add a task, respond with the following format: TASK_ADD: title: [task title], description: [if provided], priority: [high|medium|low if mentioned], due_date: [YYYY-MM-DD or DD-MM-YYYY if mentioned] "
-                              "If the user wants to list tasks, respond with: TASK_LIST: [optional filters] "
-                              "If the user wants to complete a task, respond with: TASK_COMPLETE: task_id: [number if mentioned] "
-                              "If the user wants to delete a task, respond with: TASK_DELETE: task_id: [number if mentioned] "
-                              "If you can't determine a specific action, respond with plain text."
-                }
-            ]
+            # Prepare system instructions
+            system_instructions = ("You are a task management assistant. Help users with their tasks.\n\n"
+                                  "Commands:\n"
+                                  "- Add task: TASK_ADD: title: [task title], priority: [high/medium/low]\n"
+                                  "- List tasks: TASK_LIST:\n"
+                                  "- Complete task: TASK_COMPLETE: task_id: [number]\n"
+                                  "- Delete task: TASK_DELETE: task_id: [number]\n\n"
+                                  "Tasks are numbered 1, 2, 3. If user wants to delete/complete without specifying number, ask them to list tasks first.\n\n")
 
-            # Add conversation history
-            formatted_messages.extend(messages)
-            # Add the current user message
-            formatted_messages.append(user_message)
+            # Prepare messages - include system instructions with first message if no history
+            formatted_messages = []
+
+            if not messages:
+                # First message in conversation - prepend system instructions
+                formatted_messages.append({
+                    "role": "user",
+                    "content": system_instructions + "User: " + sanitized_input
+                })
+            else:
+                # Has history - add conversation history then current message
+                formatted_messages.extend(messages)
+                formatted_messages.append(user_message)
 
             # Implement minimal delay between requests to respect rate limits
             current_time = time.time()
@@ -178,6 +181,9 @@ class TaskManagementAgent:
 
             # Call the Gemini model without tools (structured prompting approach)
             try:
+                print(f"DEBUG: Calling Gemini API with {len(formatted_messages)} messages")
+                print(f"DEBUG: System message length: {len(formatted_messages[0]['content']) if formatted_messages else 0}")
+
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=formatted_messages
@@ -189,6 +195,8 @@ class TaskManagementAgent:
                 # Process the response
                 ai_response = response.choices[0]
                 response_content = ai_response.message.content or ""
+
+                print(f"DEBUG: Gemini response: {response_content[:200]}...")
 
                 # Check if the response contains structured commands
                 import re
@@ -267,10 +275,21 @@ class TaskManagementAgent:
                     if result.get("success"):
                         tasks = result.get("tasks", [])
                         if tasks:
-                            response_content = "Here are your tasks:\n" + "\n".join([
-                                f"- {task['id']}: {task['title']} (Priority: {task['priority']}, Status: {task['status']})"
-                                for task in tasks
-                            ])
+                            # Store task ID mapping for this conversation (index -> database ID)
+                            # This allows users to reference tasks by simple numbers like 1, 2, 3
+                            if not hasattr(self, 'task_id_map'):
+                                self.task_id_map = {}
+                            if conversation_uuid not in self.task_id_map:
+                                self.task_id_map[conversation_uuid] = {}
+
+                            task_lines = []
+                            for index, task in enumerate(tasks, start=1):
+                                # Map simple index to actual database ID
+                                self.task_id_map[conversation_uuid][index] = task['id']
+
+                                status = "✓ Completed" if task.get('completed', False) else "○ Pending"
+                                task_lines.append(f"{index}. {task['title']} (Priority: {task['priority']}, {status})")
+                            response_content = "Here are your tasks:\n" + "\n".join(task_lines) + "\n\nYou can use the numbers (1, 2, 3...) to delete or complete tasks."
                         else:
                             response_content = "You don't have any tasks matching those criteria."
                     else:
@@ -279,8 +298,14 @@ class TaskManagementAgent:
                 # Look for task complete command
                 task_complete_match = re.search(r'TASK_COMPLETE:\s*task_id:\s*(\d+)', response_content, re.IGNORECASE)
                 if task_complete_match:
-                    task_id = int(task_complete_match.group(1))
-                    args = {"task_id": task_id}
+                    display_index = int(task_complete_match.group(1))
+
+                    # Convert display index to actual database ID
+                    actual_task_id = display_index
+                    if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                        actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
+
+                    args = {"task_id": actual_task_id}
 
                     # Execute the tool manually
                     result = self.execute_tool("complete_task", args, user_id)
@@ -291,13 +316,22 @@ class TaskManagementAgent:
                     })
 
                     # Update response
-                    response_content = result.get("message", f"Task #{task_id} completion status: {result.get('success', 'unknown')}")
+                    if result.get("success"):
+                        response_content = result.get("message", f"Task {display_index} marked as complete!")
+                    else:
+                        response_content = result.get("message", f"Failed to complete task {display_index}. Please list tasks first to see the current task numbers.")
 
                 # Look for task delete command
                 task_delete_match = re.search(r'TASK_DELETE:\s*task_id:\s*(\d+)', response_content, re.IGNORECASE)
                 if task_delete_match:
-                    task_id = int(task_delete_match.group(1))
-                    args = {"task_id": task_id}
+                    display_index = int(task_delete_match.group(1))
+
+                    # Convert display index to actual database ID
+                    actual_task_id = display_index
+                    if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
+                        actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
+
+                    args = {"task_id": actual_task_id}
 
                     # Execute the tool manually
                     result = self.execute_tool("delete_task", args, user_id)
@@ -308,11 +342,17 @@ class TaskManagementAgent:
                     })
 
                     # Update response
-                    response_content = result.get("message", f"Task #{task_id} deletion status: {result.get('success', 'unknown')}")
+                    if result.get("success"):
+                        response_content = result.get("message", f"Task {display_index} deleted successfully!")
+                    else:
+                        response_content = result.get("message", f"Failed to delete task {display_index}. Please list tasks first to see the current task numbers.")
 
             except Exception as gemini_error:
                 error_str = str(gemini_error)
                 logger.error(f"Gemini API error: {error_str}")
+                print(f"ERROR: Gemini API failed: {error_str}")
+                import traceback
+                print(f"TRACEBACK: {traceback.format_exc()}")
 
                 # Check if it's a rate limit error
                 if "quota" in error_str.lower() or "rate" in error_str.lower() or "429" in error_str or "limit" in error_str.lower():
@@ -401,12 +441,11 @@ class TaskManagementAgent:
                 # Format messages for the AI
                 formatted_messages = []
                 for msg in messages:
+                    # Only include role and content - Gemini doesn't need tool_calls in history
                     formatted_msg = {
                         "role": msg.role.value,
                         "content": msg.content
                     }
-                    if msg.tool_calls:
-                        formatted_msg["tool_calls"] = json.loads(msg.tool_calls)
                     formatted_messages.append(formatted_msg)
 
                 return formatted_messages

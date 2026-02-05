@@ -12,7 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # JWT Configuration
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours (increased from 30 minutes for development)
 
 security = HTTPBearer()
 
@@ -64,15 +64,22 @@ def verify_access_token(token: str) -> Optional[dict]:
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Dependency to get current user from JWT token"""
-    token = credentials.credentials
-    payload = verify_token(token)
-    user_id: str = payload.get("sub")
+    try:
+        token = credentials.credentials
+        print(f"DEBUG: Validating token: {token[:20]}...")
+        payload = verify_token(token)
+        user_id: str = payload.get("sub")
 
-    if user_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        if user_id is None:
+            print("DEBUG: No user_id (sub) found in token payload")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
-    return user_id
+        print(f"DEBUG: Token validated successfully for user_id: {user_id}")
+        return user_id
+    except Exception as e:
+        print(f"DEBUG: Token validation error: {str(e)}")
+        raise

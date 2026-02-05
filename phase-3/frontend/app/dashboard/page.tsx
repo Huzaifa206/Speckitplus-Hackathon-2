@@ -8,6 +8,12 @@ import ChatWidget from '@/components/chat-widget';
 
 const DashboardPage: React.FC = () => {
   const [showChat, setShowChat] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleTaskChange = () => {
+    // Trigger a refresh in the TaskDashboard by incrementing the trigger
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   return (
     <ProtectedRoute>
@@ -51,7 +57,7 @@ const DashboardPage: React.FC = () => {
                     </button>
                   </div>
                   <div className="flex-grow overflow-auto">
-                    <ChatWidget onClose={() => setShowChat(false)} />
+                    <ChatWidget onClose={() => setShowChat(false)} onTaskChange={handleTaskChange} />
                   </div>
                 </div>
               </div>
@@ -59,7 +65,7 @@ const DashboardPage: React.FC = () => {
 
             {/* Task Dashboard */}
             <div className="w-full">
-              <TaskDashboard />
+              <TaskDashboard key={refreshTrigger} />
             </div>
           </div>
         </main>

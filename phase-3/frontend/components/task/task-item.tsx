@@ -9,11 +9,12 @@ import ConfirmationModal from './confirmation-modal';
 
 interface TaskItemProps {
   task: Task;
+  displayIndex: number;
   onUpdate: (task: Task) => void;
   onDelete: (taskId: number) => void;
 }
 
-export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
+export function TaskItem({ task, displayIndex, onUpdate, onDelete }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.title);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -63,6 +64,11 @@ export function TaskItem({ task, onUpdate, onDelete }: TaskItemProps) {
 
   return (
     <div className={`${task.completed ? 'bg-white' : 'bg-white/80 backdrop-blur-sm'} rounded-xl shadow-sm border border-gray-200 p-4 flex items-start gap-4`}>
+      {/* Display Index */}
+      <div className="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+        <span className="text-sm font-bold text-indigo-700">{displayIndex}</span>
+      </div>
+
       <Button
         variant="ghost"
         size="sm"

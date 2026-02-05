@@ -14,6 +14,13 @@ class ApiClient {
     // Get auth token from localStorage
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
+    console.log('API Request:', {
+      endpoint,
+      method: options.method || 'GET',
+      hasToken: !!token,
+      token: token ? `${token.substring(0, 20)}...` : 'none'
+    });
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -34,8 +41,15 @@ class ApiClient {
     const response = await fetch(url, config);
 
     if (!response.ok) {
+      console.error('API Error:', {
+        status: response.status,
+        endpoint,
+        statusText: response.statusText
+      });
+
       // Handle unauthorized access
       if (response.status === 401) {
+        console.warn('401 Unauthorized - clearing token and potentially redirecting');
         // Clear auth token if unauthorized
         if (typeof window !== 'undefined') {
           localStorage.removeItem('auth_token');

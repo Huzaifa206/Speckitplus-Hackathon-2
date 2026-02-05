@@ -48,6 +48,7 @@ async def chat_endpoint(request: Request, chat_request: ChatRequest):
     Process user input and return AI response with potential tool execution
     """
     try:
+        print(f"DEBUG: Chat endpoint received user_id: {chat_request.user_id}")
         result = process_user_message(
             user_input=chat_request.user_input,
             user_id=chat_request.user_id,

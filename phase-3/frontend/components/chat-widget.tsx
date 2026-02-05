@@ -15,10 +15,11 @@ interface Message {
 
 interface ChatWidgetProps {
   userId?: string;
-  onClose?: () => void; // Add onClose prop
+  onClose?: () => void;
+  onTaskChange?: () => void; // Callback when tasks are modified
 }
 
-export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, onClose }) => {
+export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, onClose, onTaskChange }) => {
   const { user } = useAuth(); // Get the current user from auth context
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -28,6 +29,12 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, onClose }) => {
 
   // Use the provided userId, or fall back to the authenticated user's ID, or default to 'default_user'
   const effectiveUserId = userId || user?.id || 'default_user';
+
+  // Log for debugging
+  useEffect(() => {
+    console.log('ChatWidget: Current user:', user);
+    console.log('ChatWidget: Effective user ID:', effectiveUserId);
+  }, [user, effectiveUserId]);
 
   // Load conversation history when component mounts
   useEffect(() => {
@@ -102,6 +109,11 @@ export const ChatWidget: React.FC<ChatWidgetProps> = ({ userId, onClose }) => {
       // Update conversation ID if it changed
       if (response.conversation_id) {
         setConversationId(response.conversation_id);
+      }
+
+      // If any tool calls were executed (task added/deleted/completed), notify parent
+      if (response.tool_calls && response.tool_calls.length > 0 && onTaskChange) {
+        onTaskChange();
       }
     } catch (error) {
       console.error('Error sending message:', error);
