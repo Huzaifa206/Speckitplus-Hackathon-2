@@ -62,9 +62,9 @@ FUNCTION_DEFINITIONS = [
         "parameters": {
             "type": "object",
             "properties": {
-                "status_filter": {"type": "string", "enum": ["all", "completed", "pending"], "description": "Status filter"},
-                "priority_filter": {"type": "string", "enum": ["all", "high", "medium", "low"], "description": "Priority filter"},
-                "search_term": {"type": "string", "description": "Search term to filter tasks"}
+                "status": {"type": "string", "enum": ["all", "completed", "pending"], "description": "Status filter"},
+                "priority": {"type": "string", "enum": ["all", "high", "medium", "low"], "description": "Priority filter"},
+                "search": {"type": "string", "description": "Search term to filter tasks"}
             }
         }
     },

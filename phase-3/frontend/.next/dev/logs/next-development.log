@@ -1,108 +1,63 @@
-[00:00:01.190] Server  LOG     ✓ Ready in 788ms
-[00:00:03.193] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.362] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<NotAllowedRootHTTPFallbackError>} ...>
-              <RedirectBoundary>
-                <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
-                    <SegmentViewNode type="layout" pagePath="/phase-3/f...">
-                      <SegmentTrieNode>
-                      <link>
-                      <script>
-                      <script>
-                      <RootLayout>
-                        <html lang="en" suppressHydrationWarning={true}>
-                          <body
-                            className="inter_5972bc34-module__OU16Qa__className bg-gradient-to-br from-indigo-50 via-p..."
--                           data-new-gr-c-s-check-loaded="14.1271.0"
--                           data-gr-ext-installed=""
-                          >
-                  ...
-
-[00:00:03.824] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:03.824] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:11.208] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/23","hasToken":true,"method":"DELETE","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:12.850] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:00:12.850] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:00:12.850] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:00:12.850] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:00:24.221] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:24.221] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:28.234] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:00:28.234] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:00:28.235] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:00:28.235] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:00:38.616] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:38.616] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:00:59.603] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:00:59.603] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:00:59.603] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:00:59.603] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:01:11.663] Browser ERROR   Error sending message: {}
-[00:01:11.663] Browser ERROR   Error sending message: {}
-[00:03:26.598] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:03:27.174] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:03:27.174] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:03:28.751] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:03:28.751] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:03:28.751] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:03:28.751] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:06:26.286] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:06:26.822] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:06:26.823] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:06:28.711] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:06:28.711] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:06:28.711] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:06:28.711] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:06:40.779] Browser ERROR   Error sending message: {}
-[00:06:40.779] Browser ERROR   Error sending message: {}
-[00:37:21.005] Server  LOG     ✓ Compiled in 1150ms
-[00:38:03.166] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/23","hasToken":true,"method":"DELETE","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:38:05.309] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:38:05.309] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:38:05.309] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:38:05.309] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:38:25.748] Browser ERROR   Error sending message: {}
-[00:38:25.748] Browser ERROR   Error sending message: {}
-[00:42:25.328] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:42:25.328] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:42:25.328] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:42:25.328] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:42:34.376] Browser ERROR   Error sending message: {}
-[00:42:34.376] Browser ERROR   Error sending message: {}
-[00:42:39.759] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:42:40.047] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:42:40.047] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:42:45.900] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:42:45.900] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:42:45.900] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:42:45.900] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:42:56.105] Browser ERROR   Error sending message: {}
-[00:42:56.105] Browser ERROR   Error sending message: {}
-[00:52:28.835] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:52:29.461] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:52:29.461] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
-[00:52:30.477] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:52:30.477] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:52:30.478] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
-[00:52:30.478] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
-[00:52:39.186] Browser ERROR   Error sending message: {}
-[00:52:39.186] Browser ERROR   Error sending message: {}
+[00:00:01.287] Server  LOG     ✓ Ready in 900ms
+[00:00:05.369] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:05.986] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:05.986] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:09.644] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:09.644] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:09.644] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:09.644] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:23.125] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:23.125] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:35.720] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:35.720] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:00:41.541] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:41.541] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:00:41.541] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:00:41.541] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:01:35.592] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:01:35.592] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:01:35.592] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:01:35.592] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:01:43.987] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:01:43.987] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:22:20.285] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:22:20.930] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:22:20.930] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:22:22.263] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:22:22.263] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:22:22.263] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:22:22.263] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:22:57.943] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:22:57.943] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:23:08.428] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:23:08.428] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:23:08.428] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:23:08.428] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:23:15.811] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:23:15.811] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:23:15.811] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:23:15.811] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:23:26.418] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:23:26.418] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:23:30.526] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:23:30.526] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:23:30.526] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:23:30.526] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:23:34.934] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:23:34.934] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:23:51.516] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:23:51.516] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:31:26.510] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/23","hasToken":true,"method":"DELETE","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:31:36.515] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"POST","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:31:39.236] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:31:39.236] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:31:39.236] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:31:39.236] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:32:11.607] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:32:11.607] Browser LOG     API Request: {"endpoint":"/api/users/23efa1d8-4963-4e73-a763-02d14c0d3a2a/tasks/","hasToken":true,"method":"GET","token":"eyJhbGciOiJIUzI1NiIs..."}
+[00:32:16.795] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:32:16.795] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:32:16.796] Browser LOG     ChatWidget: Current user: {"email":"huzaifaas848@gmail.com","id":"23efa1d8-4963-4e73-a763-02d14c0d3a2a","name":"jnj"}
+[00:32:16.796] Browser LOG     ChatWidget: Effective user ID: 23efa1d8-4963-4e73-a763-02d14c0d3a2a
+[00:32:59.028] Browser ERROR   Error sending message: {}
+[00:32:59.028] Browser ERROR   Error sending message: {}

@@ -154,13 +154,14 @@ class TaskManagementAgent:
             }
 
             # Prepare system instructions
-            system_instructions = ("You are a task management assistant. Help users with their tasks.\n\n"
-                                  "You are a task management assistant. When users want to manage tasks, use the available functions:\n"
-                                  "- To add a task: use the add_task function with title, description, priority, due_date, and tags\n"
-                                  "- To list tasks: use the list_tasks function with optional filters\n"
-                                  "- To complete a task: use the complete_task function with task_id\n"
-                                  "- To delete a task: use the delete_task function with task_id\n\n"
-                                  "Tasks are numbered 1, 2, 3... based on their position in the list. Always list tasks first if user doesn't specify which task number to operate on.\n\n")
+            system_instructions = ("You are a task management assistant. Help users manage their tasks.\n\n"
+                                  "When users want to delete or complete a task:\n"
+                                  "- If they just say 'delete' without specifying which task, ask them to specify the task name\n"
+                                  "- To delete: Say 'Which task would you like to delete? Please provide the task name.'\n"
+                                  "- To complete: Say 'Which task would you like to complete? Please provide the task name.'\n"
+                                  "- When they provide the name, search the task list and perform the operation\n\n"
+                                  "To add tasks, use the add_task function with title, description, priority, due_date, and tags.\n"
+                                  "To list tasks, use the list_tasks function.\n\n")
 
             # Prepare messages - include system instructions with first message if no history
             formatted_messages = []
@@ -424,69 +425,112 @@ class TaskManagementAgent:
                     display_index = int(task_complete_match.group(1))
 
                     # Convert display index to actual database ID
-                    print(f"DEBUG: Looking for task_id_map, hasattr: {hasattr(self, 'task_id_map')}")
-                    if hasattr(self, 'task_id_map'):
-                        print(f"DEBUG: task_id_map keys: {list(self.task_id_map.keys()) if self.task_id_map else 'None'}")
-                        print(f"DEBUG: conversation_uuid: {conversation_uuid}")
+                    actual_task_id = None
 
-                    actual_task_id = display_index
                     if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
                         print(f"DEBUG: Found mapping for conversation {conversation_uuid}, available indices: {list(self.task_id_map[conversation_uuid].keys())}")
-                        actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
-                        print(f"DEBUG: Converted {display_index} -> {actual_task_id}")
+                        actual_task_id = self.task_id_map[conversation_uuid].get(display_index)
+                        if actual_task_id:
+                            print(f"DEBUG: Using mapping - Converted {display_index} -> {actual_task_id}")
+                        else:
+                            print(f"DEBUG: No mapping found for index {display_index}, will fetch current task list")
                     else:
-                        print(f"DEBUG: No mapping found, using original ID {display_index}")
+                        print(f"DEBUG: No mapping found, will fetch current task list")
 
-                    args = {"task_id": actual_task_id}
+                    # If we don't have a mapping or the mapping doesn't have this index, get current task list
+                    if actual_task_id is None:
+                        print(f"DEBUG: Fetching current task list to determine task ID for position {display_index}")
+                        # Get the current list of tasks for this user (this will be in the same order as the UI)
+                        list_result = self.execute_tool("list_tasks", {}, user_id)
+                        print(f"DEBUG: list_tasks result success: {list_result.get('success')}, tasks count: {len(list_result.get('tasks', []))}")
+                        if list_result.get("success"):
+                            tasks = list_result.get("tasks", [])
+                            print(f"DEBUG: Task IDs in list: {[t['id'] for t in tasks]}")
+                            if display_index <= len(tasks) and display_index > 0:
+                                actual_task_id = tasks[display_index - 1]["id"]  # -1 for 0-based indexing
+                                print(f"DEBUG: Retrieved task ID {actual_task_id} for display position {display_index}")
+                            else:
+                                print(f"DEBUG: Display index {display_index} out of range (1-{len(tasks)})")
 
-                    # Execute the tool manually
-                    result = self.execute_tool("complete_task", args, user_id)
-                    tool_calls.append({
-                        "tool_name": "complete_task",
-                        "parameters": args,
-                        "result": result
-                    })
+                    # Only execute if we have a valid task_id
+                    if actual_task_id is not None:
+                        args = {"task_id": actual_task_id}
 
-                    # Update response
-                    if result.get("success"):
-                        response_content = result.get("message", f"Task {display_index} marked as complete!")
+                        # Execute the tool manually
+                        result = self.execute_tool("complete_task", args, user_id)
+                        tool_calls.append({
+                            "tool_name": "complete_task",
+                            "parameters": args,
+                            "result": result
+                        })
+
+                        # Update response
+                        if result.get("success"):
+                            response_content = result.get("message", f"Task {display_index} marked as complete!")
+                        else:
+                            response_content = result.get("message", f"Failed to complete task {display_index}.")
                     else:
-                        response_content = result.get("message", f"Failed to complete task {display_index}. Please list tasks first to see the current task numbers.")
+                        response_content = f"Task #{display_index} doesn't exist or could not be found."
 
                 # Look for task delete command
                 task_delete_match = re.search(r'TASK_DELETE:\s*task_id:\s*(\d+)', response_content, re.IGNORECASE)
                 if task_delete_match:
+                    print(f"DEBUG: TASK_DELETE command detected in response")
                     display_index = int(task_delete_match.group(1))
+                    print(f"DEBUG: Display index from command: {display_index}")
 
                     # Convert display index to actual database ID
-                    print(f"DEBUG: Looking for task_id_map, hasattr: {hasattr(self, 'task_id_map')}")
-                    if hasattr(self, 'task_id_map'):
-                        print(f"DEBUG: task_id_map keys: {list(self.task_id_map.keys()) if self.task_id_map else 'None'}")
-                        print(f"DEBUG: conversation_uuid: {conversation_uuid}")
+                    actual_task_id = None
 
-                    actual_task_id = display_index
+                    print(f"DEBUG: Checking task_id_map - hasattr: {hasattr(self, 'task_id_map')}")
+                    if hasattr(self, 'task_id_map'):
+                        print(f"DEBUG: task_id_map exists, conversations: {list(self.task_id_map.keys())}")
+                        print(f"DEBUG: Current conversation_uuid: {conversation_uuid}")
+
                     if hasattr(self, 'task_id_map') and conversation_uuid in self.task_id_map:
                         print(f"DEBUG: Found mapping for conversation {conversation_uuid}, available indices: {list(self.task_id_map[conversation_uuid].keys())}")
-                        actual_task_id = self.task_id_map[conversation_uuid].get(display_index, display_index)
-                        print(f"DEBUG: Converted {display_index} -> {actual_task_id}")
+                        actual_task_id = self.task_id_map[conversation_uuid].get(display_index)
+                        if actual_task_id:
+                            print(f"DEBUG: Using mapping - Converted {display_index} -> {actual_task_id}")
+                        else:
+                            print(f"DEBUG: No mapping found for index {display_index}, will fetch current task list")
                     else:
-                        print(f"DEBUG: No mapping found, using original ID {display_index}")
+                        print(f"DEBUG: No mapping found for this conversation, will fetch current task list")
 
-                    args = {"task_id": actual_task_id}
+                    # If we don't have a mapping or the mapping doesn't have this index, get current task list
+                    if actual_task_id is None:
+                        print(f"DEBUG: Fetching current task list to determine task ID for position {display_index}")
+                        # Get the current list of tasks for this user (this will be in the same order as the UI)
+                        list_result = self.execute_tool("list_tasks", {}, user_id)
+                        print(f"DEBUG: list_tasks result success: {list_result.get('success')}, tasks count: {len(list_result.get('tasks', []))}")
+                        if list_result.get("success"):
+                            tasks = list_result.get("tasks", [])
+                            print(f"DEBUG: Task IDs in list: {[t['id'] for t in tasks]}")
+                            if display_index <= len(tasks) and display_index > 0:
+                                actual_task_id = tasks[display_index - 1]["id"]  # -1 for 0-based indexing
+                                print(f"DEBUG: Retrieved task ID {actual_task_id} for display position {display_index}")
+                            else:
+                                print(f"DEBUG: Display index {display_index} out of range (1-{len(tasks)})")
 
-                    # Execute the tool manually
-                    result = self.execute_tool("delete_task", args, user_id)
-                    tool_calls.append({
-                        "tool_name": "delete_task",
-                        "parameters": args,
-                        "result": result
-                    })
+                    # Only execute if we have a valid task_id
+                    if actual_task_id is not None:
+                        args = {"task_id": actual_task_id}
 
-                    # Update response
-                    if result.get("success"):
-                        response_content = result.get("message", f"Task {display_index} deleted successfully!")
+                        # Execute the tool manually
+                        result = self.execute_tool("delete_task", args, user_id)
+                        tool_calls.append({
+                            "tool_name": "delete_task",
+                            "parameters": args,
+                            "result": result
+                        })
+
+                        # Update response
+                        if result.get("success"):
+                            response_content = result.get("message", f"Task {display_index} deleted successfully!")
+                        else:
+                            response_content = result.get("message", f"Failed to delete task {display_index}.")
                     else:
-                        response_content = result.get("message", f"Failed to delete task {display_index}. Please list tasks first to see the current task numbers.")
+                        response_content = f"Task #{display_index} doesn't exist or could not be found."
 
                 # If no structured commands were found, try to parse natural language commands from original user input
                 if not tool_calls and user_input:
@@ -554,6 +598,65 @@ class TaskManagementAgent:
                             print(f"DEBUG: Delete operation executed, success: {result.get('success')}")
                             break  # Process only the first match
 
+                    # If no number-based deletion was processed, try to match by task name/title
+                    if not tool_calls:
+                        # Look for patterns like "delete task with title [title]", "delete [title]", etc.
+                        import re
+                        title_patterns = [
+                            r'delete\s+([a-zA-Z][a-zA-Z\s]+)$',  # delete taskname (simple word or phrase at end)
+                            r'delete.*?["\']([^"\']+)["\']',  # delete "task name" or delete 'task name'
+                            r'remove\s+([a-zA-Z][a-zA-Z\s]+)$',  # remove taskname
+                            r'remove.*?["\']([^"\']+)["\']',  # remove "task name"
+                            r'delete\s+task\s+([a-zA-Z][a-zA-Z\s]+)$',  # delete task taskname
+                        ]
+
+                        for pattern in title_patterns:
+                            title_match = re.search(pattern, user_input, re.IGNORECASE)
+                            if title_match:
+                                task_title = title_match.group(1).strip()
+                                print(f"DEBUG: Found task title to delete: {task_title}")
+
+                                # Skip if the title is too short or looks like a command
+                                if len(task_title) < 2 or task_title.lower() in ['task', 'it', 'this', 'that']:
+                                    print(f"DEBUG: Skipping invalid title: {task_title}")
+                                    continue
+
+                                # Get the current list of tasks to find the matching title
+                                list_result = self.execute_tool("list_tasks", {}, user_id)
+                                if list_result.get("success"):
+                                    tasks = list_result.get("tasks", [])
+
+                                    # Find the task with the matching title (case-insensitive)
+                                    matched_task = None
+                                    for task in tasks:
+                                        if task_title.lower() in task["title"].lower():
+                                            matched_task = task
+                                            break
+
+                                    if matched_task:
+                                        actual_task_id = matched_task["id"]
+                                        args = {"task_id": actual_task_id}
+                                        result = self.execute_tool("delete_task", args, user_id)
+
+                                        response_content = result.get("message", f"Task '{task_title}' {'deleted successfully!' if result.get('success') else 'could not be deleted.'}")
+
+                                        tool_calls = [{
+                                            "tool_name": "delete_task",
+                                            "parameters": args,
+                                            "result": result
+                                        }]
+                                        print(f"DEBUG: Delete by title operation executed, success: {result.get('success')}")
+                                        break
+                                    else:
+                                        response_content = f"No task found with title containing '{task_title}'. Available tasks: {[t['title'] for t in tasks]}"
+                                        tool_calls = []
+                                        break
+                                else:
+                                    print(f"DEBUG: list_tasks failed when trying to delete by title: {list_result}")
+                                    response_content = f"Could not find task with title '{task_title}' to delete."
+                                    tool_calls = []
+                                    break
+
                     # Check for complete command in user input if no delete was processed
                     if not tool_calls:  # Only process if no delete was processed
                         print(f"DEBUG: Checking for complete commands in: {user_input}")
@@ -617,6 +720,67 @@ class TaskManagementAgent:
                                 }]
                                 print(f"DEBUG: Complete operation executed, success: {result.get('success')}")
                                 break  # Process only the first match
+
+                    # If no number-based completion was processed, try to match by task name/title
+                    if not tool_calls:  # Only if no number-based completion was processed
+                        # Look for patterns like "complete task with title [title]", "complete [title]", etc.
+                        import re
+                        complete_title_patterns = [
+                            r'complete\s+([a-zA-Z][a-zA-Z\s]+)$',  # complete taskname (simple word or phrase at end)
+                            r'complete.*?["\']([^"\']+)["\']',  # complete "task name" or complete 'task name'
+                            r'finish\s+([a-zA-Z][a-zA-Z\s]+)$',   # finish taskname
+                            r'finish.*?["\']([^"\']+)["\']',   # finish "task name"
+                            r'complete\s+task\s+([a-zA-Z][a-zA-Z\s]+)$',  # complete task taskname
+                            r'mark.*?["\']([^"\']+)["\'].*?done',  # mark "task" done
+                            r'mark.*?["\']([^"\']+)["\'].*?complete',  # mark "task" complete
+                        ]
+
+                        for pattern in complete_title_patterns:
+                            title_match = re.search(pattern, user_input, re.IGNORECASE)
+                            if title_match:
+                                task_title = title_match.group(1).strip()
+                                print(f"DEBUG: Found task title to complete: {task_title}")
+
+                                # Skip if the title is too short or looks like a command
+                                if len(task_title) < 2 or task_title.lower() in ['task', 'it', 'this', 'that']:
+                                    print(f"DEBUG: Skipping invalid title: {task_title}")
+                                    continue
+
+                                # Get the current list of tasks to find the matching title
+                                list_result = self.execute_tool("list_tasks", {}, user_id)
+                                if list_result.get("success"):
+                                    tasks = list_result.get("tasks", [])
+
+                                    # Find the task with the matching title (case-insensitive)
+                                    matched_task = None
+                                    for task in tasks:
+                                        if task_title.lower() in task["title"].lower():
+                                            matched_task = task
+                                            break
+
+                                    if matched_task:
+                                        actual_task_id = matched_task["id"]
+                                        args = {"task_id": actual_task_id}
+                                        result = self.execute_tool("complete_task", args, user_id)
+
+                                        response_content = result.get("message", f"Task '{task_title}' {'marked as complete!' if result.get('success') else 'could not be completed.'}")
+
+                                        tool_calls = [{
+                                            "tool_name": "complete_task",
+                                            "parameters": args,
+                                            "result": result
+                                        }]
+                                        print(f"DEBUG: Complete by title operation executed, success: {result.get('success')}")
+                                        break
+                                    else:
+                                        response_content = f"No task found with title containing '{task_title}'. Available tasks: {[t['title'] for t in tasks]}"
+                                        tool_calls = []
+                                        break
+                                else:
+                                    print(f"DEBUG: list_tasks failed when trying to complete by title: {list_result}")
+                                    response_content = f"Could not find task with title '{task_title}' to complete."
+                                    tool_calls = []
+                                    break
 
             except Exception as gemini_error:
                 error_str = str(gemini_error)

@@ -57,7 +57,7 @@ def add_task(title: str, description: Optional[str] = None, priority: str = "med
                 tags=tags_json  # Store tags as JSON string
             )
 
-            print(f"DEBUG: Creating task with data: {task_data}")
+            print(f"DEBUG: Creating task with data: {task_data.dict()}")
 
             task = Task(**task_data.dict())
             session.add(task)
