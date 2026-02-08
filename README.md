@@ -9,13 +9,14 @@ The project is divided into **5 Phases**, each adding complexity and modern engi
 * **Phase II**: Full Stack Web App (FastAPI + Next.js)
 * **Phase III**: AI-Powered Chatbot (Gemini Integration)
 * **Phase IV**: Containerization & Orchestration (Docker + Kubernetes)
-* **Phase V**: Event-Driven Architecture (Kafka & Notifications)
+* **Phase V**: Cloud Deployment & Production Optimization
 
 ---
 
 ## 🚀 Live Demo
 * **Frontend (Vercel)**: [https://speckitplus-hackathon-2.vercel.app/](https://speckitplus-hackathon-2.vercel.app/)
 * **Backend (Hugging Face)**: [https://huzaifa48-hackathon-2-todo-app.hf.space](https://huzaifa48-hackathon-2-todo-app.hf.space)
+
 ---
 
 ## 🛠 Tech Stack
@@ -24,9 +25,8 @@ The project is divided into **5 Phases**, each adding complexity and modern engi
 * **Language**: Python 3.12+
 * **Framework**: FastAPI
 * **Database**: PostgreSQL (Neon DB) with SQLModel
-* **AI Model**: Google Gemini 2.5 Flash (via openAi Agents SDK)
-* **Streaming**: Apache Kafka (Upstash)
-* **Containerization**: Docker & Kubernetes (Minikube)
+* **AI Model**: Google Gemini 2.5 Flash (via OpenAI Agents SDK)
+* **Containerization**: Docker & Kubernetes (Minikube for Dev)
 
 ### Frontend
 * **Framework**: Next.js 16 (App Router)
@@ -37,6 +37,6 @@ The project is divided into **5 Phases**, each adding complexity and modern engi
 
 ### Infrastructure
 * **Frontend Hosting**: Vercel
-* **Backend Hosting**: Hugging Face Spaces 
+* **Backend Hosting**: Hugging Face Spaces / Render
 * **Database**: Neon (Serverless Postgres)
-* **Orchestration**: Minikube (Local K8s Cluster)
+* **Orchestration**: Docker Compose / Minikube
