@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: huzaifa48/todo-backend:v1.0.0
+        image: huzaifa48/todo-backend:v1.0.1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
